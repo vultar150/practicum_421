@@ -117,7 +117,7 @@ void WriteCurrDate( Reference< XFrame > &rxFrame )
     Reference< XModel > xModel = xCtrl->getModel();
     if ( !xModel.is() )
     return;
-
+////
     Reference < XTextDocument > xTextDocument (xModel, UNO_QUERY);
     Reference< XText > xText = xTextDocument->getText();
     Reference<XTextRange> xTextRange = xText->getStart();

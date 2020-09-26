@@ -80,17 +80,17 @@ void WriteStringToCell( Reference< XFrame > &rxFrame, OUString aStr )
 	OUStringToOString( aStr, RTL_TEXTENCODING_ASCII_US ).getStr()); fflush(stdout);
 }
 
-void GetCurrDateTime( oslDateTime* pDateTime )
-{
-    if ( !pDateTime )
-	return;
-    TimeValue aTimeval;
-    osl_getSystemTime( &aTimeval );
-    osl_getDateTimeFromTimeValue( &aTimeval, pDateTime );
-}
+// void GetCurrDateTime( oslDateTime* pDateTime )
+// {
+//     if ( !pDateTime )
+// 	return;
+//     TimeValue aTimeval;
+//     osl_getSystemTime( &aTimeval );
+//     osl_getDateTimeFromTimeValue( &aTimeval, pDateTime );
+// }
 
 // filling table
-void fill_table(Reference <XTextTable> &xTable, int num_of_rows, int num_of_col)
+void fillTable(Reference <XTextTable> &xTable, int numOfRows, int numOfCol)
 {
     Reference< XText > xText;
     Reference< XTextCursor> xTextCursor;
@@ -108,23 +108,22 @@ void fill_table(Reference <XTextTable> &xTable, int num_of_rows, int num_of_col)
 }
 
 // Local function to write Date to cell A1
-void WriteCurrDate( Reference< XFrame > &rxFrame )
+void openNewFileWithTables( Reference< XFrame > &rxFrame )
 {
     srand(time(NULL));
 
     if ( !rxFrame.is() )
     return;
 
-    Reference< XController > xCtrl = rxFrame->getController();
-    if ( !xCtrl.is() )
-    return;
-
-    Reference< XModel > xModel = xCtrl->getModel();
-    if ( !xModel.is() )
-    return;
 ///////////////
 
    Reference< XComponentLoader > rComponentLoader (rxFrame, UNO_QUERY);
+
+   if ( !rComponentLoader.is())
+   {
+        std::cerr << "Can't open new OOWriter file" << std::endl;
+        return;
+   }
 
    //get an instance of the OOowriter document
     Reference< XComponent > xWriterComponent = rComponentLoader->loadComponentFromURL(
@@ -135,18 +134,19 @@ void WriteCurrDate( Reference< XFrame > &rxFrame )
 
     Reference < XTextDocument > xTextDocument (xWriterComponent,UNO_QUERY);
     Reference< XText > xText = xTextDocument->getText();
+
 ////////////////
-    
+
     Reference<XTextRange> xTextRange = xText->getStart();
     Reference< XTextCursor> xTextCursor = xText->createTextCursor();
 
-    int number_of_tables = rand() % 7 + 2;
+    int numberOfTables = rand() % 7 + 2;
 
-    for (int i = 0; i < number_of_tables; i++)
+    for (int i = 0; i < numberOfTables; i++)
     {
         xTextCursor->gotoEnd(false);
-        std::string number_of_table = "Table: " + std::to_string(i);
-        xTextRange->setString(OUString::createFromAscii(number_of_table.c_str()));
+        std::string tableNum = "Table: " + std::to_string(i);
+        xTextRange->setString(OUString::createFromAscii(tableNum.c_str()));
         Reference<XMultiServiceFactory> oDocMSF (xTextDocument,UNO_QUERY);
         Reference <XTextTable> xTable (oDocMSF->createInstance(
                 OUString::createFromAscii("com.sun.star.text.TextTable")),UNO_QUERY);
@@ -154,33 +154,45 @@ void WriteCurrDate( Reference< XFrame > &rxFrame )
         if ( !xTable.is() )
         return;
         
-        int num_of_rows = rand() % 8 + 3;
-        int num_of_col = rand() % 4 + 3;
+        int numOfRows = rand() % 8 + 3;
+        int numOfCol = rand() % 4 + 3;
 
-        xTable->initialize(num_of_rows, num_of_col);
+        xTable->initialize(numOfRows, numOfCol);
         xTextRange = xText->getEnd();
 
         Reference <XTextContent> xTextContent(xTable,UNO_QUERY);
         xText->insertTextContent(xTextRange, xTextContent,(unsigned char) 0);
         xTextRange->setString(OUString::createFromAscii("\n\n"));
-        fill_table(xTable, num_of_rows, num_of_col);
+        fillTable(xTable, numOfRows, numOfCol);
     }
-
-    // char buf[12];
-    // oslDateTime aDateTime;
-    // GetCurrDateTime( &aDateTime );
-    // sprintf(buf, "%04d/%02d/%02d", aDateTime.Year, aDateTime.Month, aDateTime.Day);
-    // WriteStringToCell( rxFrame, OUString::createFromAscii(buf) );
 }
 
 // Local function to write Time to cell A1
-void WriteCurrTime( Reference< XFrame > &rxFrame )
+void tablesHandling( Reference< XFrame > &rxFrame )
 {
-    char buf[10];
-    oslDateTime aDateTime;
-    GetCurrDateTime( &aDateTime );
-    sprintf(buf, "%02d%02d%02d", aDateTime.Hours, aDateTime.Minutes, aDateTime.Seconds);
-    WriteStringToCell( rxFrame, OUString::createFromAscii(buf) );
+    if ( !rxFrame.is() )
+    return;
+
+    Reference< XController > xCtrl = rxFrame->getController();
+    if ( !xCtrl.is() )
+    return;
+
+    Reference< XModel > xModel = xCtrl->getModel();
+    if ( !xModel.is() )
+    return;
+
+    Reference < XTextDocument > xTextDocument (xModel, UNO_QUERY);
+
+    if ( !xTextDocument.is() )
+    {
+        std::cerr << "Cant't connect into current writer document" << std::endl;
+    }
+
+    Reference< XText > xText = xTextDocument->getText();
+
+    Reference<XTextRange> xTextRange = xText->getStart();
+    Reference< XTextCursor> xTextCursor = xText->createTextCursor();
+
 }
 
 
@@ -192,13 +204,13 @@ void SAL_CALL DateTimeWriterDispatchImpl::dispatch( const URL& aURL, const Seque
     {
 	printf("DEBUG>>> DateTimeWriterDispatchImpl::dispatch() called. this = %p, command = %s\n", this,
 	    OUStringToOString( aURL.Path, RTL_TEXTENCODING_ASCII_US ).getStr()); fflush(stdout);
-        if ( aURL.Path.equalsAscii( "InsertDate" ) )
+        if ( aURL.Path.equalsAscii( "OpenNew" ) )
         {
-            WriteCurrDate( mxFrame );
+            openNewFileWithTables( mxFrame );
         }
-        else if ( aURL.Path.equalsAscii( "InsertTime" ) )
+        else if ( aURL.Path.equalsAscii( "TablesHandling" ) )
         {
-	       WriteCurrTime( mxFrame );
+            tablesHandling( mxFrame );
         }
     }
 }
@@ -233,9 +245,9 @@ Reference< XDispatch > SAL_CALL Addon::queryDispatch( const URL& aURL, const ::r
     {
 	printf("DEBUG>>> Addon::queryDispatch() called. this = %p, command = %s\n", this,
 	    OUStringToOString( aURL.Path, RTL_TEXTENCODING_ASCII_US ).getStr()); fflush(stdout);
-        if ( aURL.Path.equalsAscii( "InsertDate" ) )
+        if ( aURL.Path.equalsAscii( "OpenNew" ) )
             xRet = new DateTimeWriterDispatchImpl( mxFrame );
-        else if ( aURL.Path.equalsAscii( "InsertTime" ) )
+        else if ( aURL.Path.equalsAscii( "TablesHandling" ) )
             xRet = xRet = new DateTimeWriterDispatchImpl( mxFrame );
     }
 

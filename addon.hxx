@@ -28,15 +28,15 @@ namespace com
 }
 
 
-class DateTimeWriterDispatchImpl : public cppu::WeakImplHelper1<com::sun::star::frame::XDispatch>
+class CreatorAndTablesHandlingDispatchImpl : public cppu::WeakImplHelper1<com::sun::star::frame::XDispatch>
 {
 private:
     ::com::sun::star::uno::Reference< ::com::sun::star::frame::XFrame > mxFrame;
 public:
-    DateTimeWriterDispatchImpl( const ::com::sun::star::uno::Reference< ::com::sun::star::frame::XFrame > &rxFrame )
+    CreatorAndTablesHandlingDispatchImpl( const ::com::sun::star::uno::Reference< ::com::sun::star::frame::XFrame > &rxFrame )
 	: mxFrame( rxFrame )
     {
-	printf("DEBUG>>> Created DateTimeWriterDispatchImpl object : %p\n", this); fflush(stdout);
+	printf("DEBUG>>> Created CreatorAndTablesHandlingDispatchImpl object : %p\n", this); fflush(stdout);
     }
 
     // XDispatch

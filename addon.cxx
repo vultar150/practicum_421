@@ -196,13 +196,13 @@ void tablesHandling( Reference< XFrame > &rxFrame )
 }
 
 
-// XDispatch implementer class "DateTimeWriterDispatchImpl" methods
+// XDispatch implementer class "CreatorAndTablesHandlingDispatchImpl" methods
 
-void SAL_CALL DateTimeWriterDispatchImpl::dispatch( const URL& aURL, const Sequence < PropertyValue >& lArgs ) throw (RuntimeException)
+void SAL_CALL CreatorAndTablesHandlingDispatchImpl::dispatch( const URL& aURL, const Sequence < PropertyValue >& lArgs ) throw (RuntimeException)
 {
     if ( aURL.Protocol.equalsAscii("inco.niocs.test.protocolhandler:") )
     {
-	printf("DEBUG>>> DateTimeWriterDispatchImpl::dispatch() called. this = %p, command = %s\n", this,
+	printf("DEBUG>>> CreatorAndTablesHandlingDispatchImpl::dispatch() called. this = %p, command = %s\n", this,
 	    OUStringToOString( aURL.Path, RTL_TEXTENCODING_ASCII_US ).getStr()); fflush(stdout);
         if ( aURL.Path.equalsAscii( "OpenNew" ) )
         {
@@ -215,11 +215,11 @@ void SAL_CALL DateTimeWriterDispatchImpl::dispatch( const URL& aURL, const Seque
     }
 }
 
-void SAL_CALL DateTimeWriterDispatchImpl::addStatusListener( const Reference< XStatusListener >& xControl, const URL& aURL ) throw (RuntimeException)
+void SAL_CALL CreatorAndTablesHandlingDispatchImpl::addStatusListener( const Reference< XStatusListener >& xControl, const URL& aURL ) throw (RuntimeException)
 {
 }
 
-void SAL_CALL DateTimeWriterDispatchImpl::removeStatusListener( const Reference< XStatusListener >& xControl, const URL& aURL ) throw (RuntimeException)
+void SAL_CALL CreatorAndTablesHandlingDispatchImpl::removeStatusListener( const Reference< XStatusListener >& xControl, const URL& aURL ) throw (RuntimeException)
 {
 }
 
@@ -246,9 +246,9 @@ Reference< XDispatch > SAL_CALL Addon::queryDispatch( const URL& aURL, const ::r
 	printf("DEBUG>>> Addon::queryDispatch() called. this = %p, command = %s\n", this,
 	    OUStringToOString( aURL.Path, RTL_TEXTENCODING_ASCII_US ).getStr()); fflush(stdout);
         if ( aURL.Path.equalsAscii( "OpenNew" ) )
-            xRet = new DateTimeWriterDispatchImpl( mxFrame );
+            xRet = new CreatorAndTablesHandlingDispatchImpl( mxFrame );
         else if ( aURL.Path.equalsAscii( "TablesHandling" ) )
-            xRet = xRet = new DateTimeWriterDispatchImpl( mxFrame );
+            xRet = xRet = new CreatorAndTablesHandlingDispatchImpl( mxFrame );
     }
 
     return xRet;

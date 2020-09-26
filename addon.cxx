@@ -124,14 +124,7 @@ void WriteCurrDate( Reference< XFrame > &rxFrame )
     return;
 ///////////////
 
-   // Reference< XMultiServiceFactory > rOfficeServiceManager (rInstance, UNO_QUERY);
-
-   // Reference< XInterface  > Desktop = rOfficeServiceManager->createInstance(
-   //      OUString::createFromAscii( "com.sun.star.frame.Desktop" ));
-
    Reference< XComponentLoader > rComponentLoader (rxFrame, UNO_QUERY);
-
-   
 
    //get an instance of the OOowriter document
     Reference< XComponent > xWriterComponent = rComponentLoader->loadComponentFromURL(
@@ -140,39 +133,38 @@ void WriteCurrDate( Reference< XFrame > &rxFrame )
         0,
         Sequence < ::com::sun::star::beans::PropertyValue >());
 
-    // Reference < XTextDocument > xTextDocument (xWriterComponent,UNO_QUERY);
-    // Reference< XText > xText = xTextDocument->getText();
-///////////////
-    // Reference < XTextDocument > xTextDocument (xModel, UNO_QUERY);
-    // Reference< XText > xText = xTextDocument->getText();
-    // Reference<XTextRange> xTextRange = xText->getStart();
-    // Reference< XTextCursor> xTextCursor = xText->createTextCursor();
+    Reference < XTextDocument > xTextDocument (xWriterComponent,UNO_QUERY);
+    Reference< XText > xText = xTextDocument->getText();
+////////////////
+    
+    Reference<XTextRange> xTextRange = xText->getStart();
+    Reference< XTextCursor> xTextCursor = xText->createTextCursor();
 
-    // int number_of_tables = rand() % 7 + 2;
+    int number_of_tables = rand() % 7 + 2;
 
-    // for (int i = 0; i < number_of_tables; i++)
-    // {
-    //     xTextCursor->gotoEnd(false);
-    //     std::string number_of_table = "Table: " + std::to_string(i);
-    //     xTextRange->setString(OUString::createFromAscii(number_of_table.c_str()));
-    //     Reference<XMultiServiceFactory> oDocMSF (xTextDocument,UNO_QUERY);
-    //     Reference <XTextTable> xTable (oDocMSF->createInstance(
-    //             OUString::createFromAscii("com.sun.star.text.TextTable")),UNO_QUERY);
+    for (int i = 0; i < number_of_tables; i++)
+    {
+        xTextCursor->gotoEnd(false);
+        std::string number_of_table = "Table: " + std::to_string(i);
+        xTextRange->setString(OUString::createFromAscii(number_of_table.c_str()));
+        Reference<XMultiServiceFactory> oDocMSF (xTextDocument,UNO_QUERY);
+        Reference <XTextTable> xTable (oDocMSF->createInstance(
+                OUString::createFromAscii("com.sun.star.text.TextTable")),UNO_QUERY);
 
-    //     if ( !xTable.is() )
-    //     return;
+        if ( !xTable.is() )
+        return;
         
-    //     int num_of_rows = rand() % 8 + 3;
-    //     int num_of_col = rand() % 4 + 3;
+        int num_of_rows = rand() % 8 + 3;
+        int num_of_col = rand() % 4 + 3;
 
-    //     xTable->initialize(num_of_rows, num_of_col);
-    //     xTextRange = xText->getEnd();
+        xTable->initialize(num_of_rows, num_of_col);
+        xTextRange = xText->getEnd();
 
-    //     Reference <XTextContent> xTextContent(xTable,UNO_QUERY);
-    //     xText->insertTextContent(xTextRange, xTextContent,(unsigned char) 0);
-    //     xTextRange->setString(OUString::createFromAscii("\n\n"));
-    //     fill_table(xTable, num_of_rows, num_of_col);
-    // }
+        Reference <XTextContent> xTextContent(xTable,UNO_QUERY);
+        xText->insertTextContent(xTextRange, xTextContent,(unsigned char) 0);
+        xTextRange->setString(OUString::createFromAscii("\n\n"));
+        fill_table(xTable, num_of_rows, num_of_col);
+    }
 
     // char buf[12];
     // oslDateTime aDateTime;

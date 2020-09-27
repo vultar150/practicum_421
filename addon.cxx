@@ -49,51 +49,6 @@ using namespace cppu;
 // This is the service name an Add-On has to implement
 #define SERVICE_NAME "com.sun.star.frame.ProtocolHandler"
 
-
-// Local function to write a string to cell A1
-
-void WriteStringToCell( Reference< XFrame > &rxFrame, OUString aStr )
-{
-    if ( !rxFrame.is() )
-	return;
-    
-    Reference< XController > xCtrl = rxFrame->getController();
-    if ( !xCtrl.is() )
-	return;
-
-    Reference< XModel > xModel = xCtrl->getModel();
-    if ( !xModel.is() )
-	return;
-
-    Reference< XSpreadsheetDocument > xSpreadsheetDocument( xModel, UNO_QUERY );
-    if ( !xSpreadsheetDocument.is() )
-	return;
-
-    Reference< XSpreadsheets > xSpreadsheets = xSpreadsheetDocument->getSheets();
-    if ( !xSpreadsheets->hasByName("Sheet1") )
-	return;
-
-    Any aSheet = xSpreadsheets->getByName("Sheet1");
-
-    Reference< XSpreadsheet > xSpreadsheet( aSheet, UNO_QUERY );
-
-    Reference< XCell > xCell = xSpreadsheet->getCellByPosition(0, 0);
-
-    xCell->setFormula(aStr);
-    
-    printf("DEBUG>>> Wrote \"%s\" to Cell A1\n",
-	OUStringToOString( aStr, RTL_TEXTENCODING_ASCII_US ).getStr()); fflush(stdout);
-}
-
-// void GetCurrDateTime( oslDateTime* pDateTime )
-// {
-//     if ( !pDateTime )
-// 	return;
-//     TimeValue aTimeval;
-//     osl_getSystemTime( &aTimeval );
-//     osl_getDateTimeFromTimeValue( &aTimeval, pDateTime );
-// }
-
 // filling table
 void fillTable(Reference <XTextTable> &xTable)
 {
@@ -130,7 +85,7 @@ void openNewFileWithTables( Reference< XFrame > &rxFrame )
         return;
    }
 
-   //get an instance of the OOowriter document
+//get an instance of the OOowriter document
     Reference< XComponent > xWriterComponent = rComponentLoader->loadComponentFromURL(
         OUString::createFromAscii("private:factory/swriter"),
         OUString::createFromAscii("_blank"),
@@ -167,7 +122,6 @@ void openNewFileWithTables( Reference< XFrame > &rxFrame )
 
         Reference <XTextContent> xTextContent(xTable,UNO_QUERY);
         xText->insertTextContent(xTextRange, xTextContent,(unsigned char) 0);
-        //xTextRange->setString(OUString::createFromAscii("\n\n"));
         fillTable(xTable);
     }
 }

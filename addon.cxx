@@ -7,6 +7,7 @@
 #include <com/sun/star/frame/XController.hpp>
 #include <com/sun/star/frame/XModel.hpp>
 #include <com/sun/star/uno/XComponentContext.hpp>
+#include <com/sun/star/lang/IndexOutOfBoundsException.hpp>
 #include <com/sun/star/sheet/XSpreadsheetDocument.hpp>
 #include <com/sun/star/sheet/XSpreadsheets.hpp>
 #include <com/sun/star/sheet/XSpreadsheet.hpp>
@@ -16,6 +17,7 @@
 #include <com/sun/star/text/XTextTable.hpp>
 #include <com/sun/star/text/XTextContent.hpp>
 #include <com/sun/star/frame/XComponentLoader.hpp>
+#include <com/sun/star/beans/XPropertySet.hpp>
 
 #include <com/sun/star/bridge/XUnoUrlResolver.hpp>
 #include <com/sun/star/lang/XMultiServiceFactory.hpp>
@@ -38,6 +40,7 @@ using namespace com::sun::star::sheet;
 using namespace com::sun::star::table;
 using namespace com::sun::star::text;
 using namespace com::sun::star::container;
+using namespace com::sun::star::beans;
 
 using com::sun::star::beans::PropertyValue;
 using com::sun::star::util::URL;
@@ -92,7 +95,7 @@ void WriteStringToCell( Reference< XFrame > &rxFrame, OUString aStr )
 // }
 
 // filling table
-void fillTable(Reference <XTextTable> &xTable, int numOfRows, int numOfCol)
+void fillTable(Reference <XTextTable> &xTable)
 {
     Reference< XText > xText;
     Reference< XTextCursor> xTextCursor;
@@ -164,8 +167,45 @@ void openNewFileWithTables( Reference< XFrame > &rxFrame )
 
         Reference <XTextContent> xTextContent(xTable,UNO_QUERY);
         xText->insertTextContent(xTextRange, xTextContent,(unsigned char) 0);
-        xTextRange->setString(OUString::createFromAscii("\n\n"));
-        fillTable(xTable, numOfRows, numOfCol);
+        //xTextRange->setString(OUString::createFromAscii("\n\n"));
+        fillTable(xTable);
+    }
+}
+
+// transpose table
+void transpose(Reference <XTextTable> &xTable)
+{
+    Reference <XCellRange> xCellRange(xTable, UNO_QUERY);
+
+    if ( !xCellRange.is())
+    {
+        std::cerr << "Some trouble connect to table" << std::endl;
+        return;
+    }
+
+    try
+    {
+        Reference <XCell> xCell;
+        for (int i = 0; ;i++)
+        {
+            xCell = xCellRange->getCellByPosition(i, i);
+            for (int j = 0; j < i; j++)
+            {   
+                Reference <XText> xText1(xCellRange->getCellByPosition(j, i), UNO_QUERY);
+                Reference <XText> xText2(xCellRange->getCellByPosition(i, j), UNO_QUERY);
+                auto tmpString = xText1->getString();
+                xText1->setString(xText2->getString());
+                xText2->setString(tmpString);
+            }
+        }
+    }
+    catch (IndexOutOfBoundsException &)
+    {
+        /* To define table bound. If index (i, i) will exceed acceptable
+        value, then further processing of this table is interrupted and
+        processing of next table begins, if any.
+        */
+        std::cout << "To define size of table\n" << std::endl;
     }
 }
 
@@ -192,28 +232,21 @@ void tablesHandling( Reference< XFrame > &rxFrame )
     }
 
     Reference < XTextTablesSupplier > xTextTablesSupplier(xTextDocument, UNO_QUERY);
-
     Reference < XNameAccess > xNameAccess = xTextTablesSupplier->getTextTables();
 
     for (auto name : xNameAccess->getElementNames())
     {
-        std::cout << "Some table name!!!!!!!!!!!!!!!!!!!\n";
-        std::cout << name << std::endl;
-        std::cout << std::endl;
+        Any table = xNameAccess->getByName(name);
+        Reference <XTextTable> xTable;
+        table >>= xTable;
+        transpose(xTable);
     }
-
-    std::cout << "FINISH TABLES IN THIS FILE!!!!!!!!!!!!!!!!!!!!\n\n\n";
-    // Reference< XText > xText = xTextDocument->getText();
-
-    // Reference<XTextRange> xTextRange = xText->getStart();
-    // Reference< XTextCursor> xTextCursor = xText->createTextCursor();
-
 }
 
 
 // XDispatch implementer class "CreatorAndTablesHandlingDispatchImpl" methods
 
-void SAL_CALL CreatorAndTablesHandlingDispatchImpl::dispatch( const URL& aURL, const Sequence < PropertyValue >& lArgs ) throw (RuntimeException)
+void SAL_CALL CreatorAndTablesHandlingDispatchImpl::dispatch( const URL& aURL, const Sequence < PropertyValue >& lArgs )
 {
     if ( aURL.Protocol.equalsAscii("inco.niocs.test.protocolhandler:") )
     {
@@ -230,11 +263,11 @@ void SAL_CALL CreatorAndTablesHandlingDispatchImpl::dispatch( const URL& aURL, c
     }
 }
 
-void SAL_CALL CreatorAndTablesHandlingDispatchImpl::addStatusListener( const Reference< XStatusListener >& xControl, const URL& aURL ) throw (RuntimeException)
+void SAL_CALL CreatorAndTablesHandlingDispatchImpl::addStatusListener( const Reference< XStatusListener >& xControl, const URL& aURL )
 {
 }
 
-void SAL_CALL CreatorAndTablesHandlingDispatchImpl::removeStatusListener( const Reference< XStatusListener >& xControl, const URL& aURL ) throw (RuntimeException)
+void SAL_CALL CreatorAndTablesHandlingDispatchImpl::removeStatusListener( const Reference< XStatusListener >& xControl, const URL& aURL )
 {
 }
 
@@ -242,7 +275,7 @@ void SAL_CALL CreatorAndTablesHandlingDispatchImpl::removeStatusListener( const 
 
 // ProtocolHandler implementation "Addon" class methods
 
-void SAL_CALL Addon::initialize( const Sequence< Any >& aArguments ) throw ( Exception, RuntimeException)
+void SAL_CALL Addon::initialize( const Sequence< Any >& aArguments )
 {
     Reference < XFrame > xFrame;
     if ( aArguments.getLength() )
@@ -253,7 +286,6 @@ void SAL_CALL Addon::initialize( const Sequence< Any >& aArguments ) throw ( Exc
 }
 
 Reference< XDispatch > SAL_CALL Addon::queryDispatch( const URL& aURL, const ::rtl::OUString& sTargetFrameName, sal_Int32 nSearchFlags )
-                throw( RuntimeException )
 {
     Reference < XDispatch > xRet;
     if ( aURL.Protocol.equalsAscii("inco.niocs.test.protocolhandler:") )
@@ -271,7 +303,6 @@ Reference< XDispatch > SAL_CALL Addon::queryDispatch( const URL& aURL, const ::r
 
 
 Sequence < Reference< XDispatch > > SAL_CALL Addon::queryDispatches( const Sequence < DispatchDescriptor >& seqDescripts )
-            throw( RuntimeException )
 {
     sal_Int32 nCount = seqDescripts.getLength();
     Sequence < Reference < XDispatch > > lDispatcher( nCount );
@@ -285,13 +316,11 @@ Sequence < Reference< XDispatch > > SAL_CALL Addon::queryDispatches( const Seque
 
 // Helper functions for the implementation of UNO component interfaces.
 OUString Addon_getImplementationName()
-throw (RuntimeException)
 {
     return OUString ( IMPLEMENTATION_NAME );
 }
 
 Sequence< ::rtl::OUString > SAL_CALL Addon_getSupportedServiceNames()
-throw (RuntimeException)
 {
     Sequence < ::rtl::OUString > aRet(1);
     ::rtl::OUString* pArray = aRet.getArray();
@@ -300,7 +329,6 @@ throw (RuntimeException)
 }
 
 Reference< XInterface > SAL_CALL Addon_createInstance( const Reference< XComponentContext > & rContext)
-    throw( Exception )
 {
     return (cppu::OWeakObject*) new Addon( rContext );
 }
@@ -308,19 +336,16 @@ Reference< XInterface > SAL_CALL Addon_createInstance( const Reference< XCompone
 // Implementation of the recommended/mandatory interfaces of a UNO component.
 // XServiceInfo
 ::rtl::OUString SAL_CALL Addon::getImplementationName()
-    throw (RuntimeException)
 {
     return Addon_getImplementationName();
 }
 
 sal_Bool SAL_CALL Addon::supportsService( const ::rtl::OUString& rServiceName )
-    throw (RuntimeException)
 {
     return cppu::supportsService(this, rServiceName);
 }
 
 Sequence< ::rtl::OUString > SAL_CALL Addon::getSupportedServiceNames(  )
-    throw (RuntimeException)
 {
     return Addon_getSupportedServiceNames();
 }

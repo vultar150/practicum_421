@@ -20,6 +20,7 @@
 #include <com/sun/star/bridge/XUnoUrlResolver.hpp>
 #include <com/sun/star/lang/XMultiServiceFactory.hpp>
 #include <com/sun/star/lang/XMultiComponentFactory.hpp>
+#include <com/sun/star/text/XTextTablesSupplier.hpp>
 #include <com/sun/star/frame/XStorable.hpp>
 #include <com/sun/star/frame/XDesktop.hpp>
 
@@ -36,6 +37,7 @@ using namespace com::sun::star::frame;
 using namespace com::sun::star::sheet;
 using namespace com::sun::star::table;
 using namespace com::sun::star::text;
+using namespace com::sun::star::container;
 
 using com::sun::star::beans::PropertyValue;
 using com::sun::star::util::URL;
@@ -186,12 +188,25 @@ void tablesHandling( Reference< XFrame > &rxFrame )
     if ( !xTextDocument.is() )
     {
         std::cerr << "Cant't connect into current writer document" << std::endl;
+        return;
     }
 
-    Reference< XText > xText = xTextDocument->getText();
+    Reference < XTextTablesSupplier > xTextTablesSupplier(xTextDocument, UNO_QUERY);
 
-    Reference<XTextRange> xTextRange = xText->getStart();
-    Reference< XTextCursor> xTextCursor = xText->createTextCursor();
+    Reference < XNameAccess > xNameAccess = xTextTablesSupplier->getTextTables();
+
+    for (auto name : xNameAccess->getElementNames())
+    {
+        std::cout << "Some table name!!!!!!!!!!!!!!!!!!!\n";
+        std::cout << name << std::endl;
+        std::cout << std::endl;
+    }
+
+    std::cout << "FINISH TABLES IN THIS FILE!!!!!!!!!!!!!!!!!!!!\n\n\n";
+    // Reference< XText > xText = xTextDocument->getText();
+
+    // Reference<XTextRange> xTextRange = xText->getStart();
+    // Reference< XTextCursor> xTextCursor = xText->createTextCursor();
 
 }
 

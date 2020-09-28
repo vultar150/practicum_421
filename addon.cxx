@@ -187,7 +187,7 @@ void tablesHandling( Reference< XFrame > &rxFrame )
     if (not xModel.is())
     return;
 
-    Reference<XTextDocument> xTextDocument (xModel, UNO_QUERY);
+    Reference < XTextDocument > xTextDocument (xModel, UNO_QUERY);
 
     if (not xTextDocument.is())
     {
@@ -201,10 +201,38 @@ void tablesHandling( Reference< XFrame > &rxFrame )
     for (auto name : xNameAccess->getElementNames())
     {
         Any table = xNameAccess->getByName(name);
-        Reference <XTextTable> xTable;
+        Reference < XTextTable > xTable;
         table >>= xTable;
         transpose(xTable);
     }
+
+    // Reference < XInterface > xInterface = xModel->getCurrentSelection();
+    // if ( xInterface.is() )
+    // {
+    //     std::cout << "Not empty!\n";
+    // }
+    // Reference < XSelectionSupplier > xSelectionSupplier (xCtrl, UNO_QUERY);
+    // Reference < XMultiSelectionSupplier > xMultiSelectionSupplier(xSelectionSupplier, UNO_QUERY);
+    // try
+    // {
+    // Any obj = xSelectionSupplier->getSelection();
+    // Reference < XTextTable > xTable;
+    // obj >>= xTable;
+    // if ( xTable.is() )
+    // {
+    //     std::cout << "SOMETHING IS" << std::endl;
+    // }
+    // else 
+    // {
+    //     std::cout << "NOTHING (" << std::endl;
+    // }
+
+    // }
+    // catch(Exception &)
+    // {
+    //     std::cerr << "Nothing get\n";
+    //     return;
+    // }
 }
 
 

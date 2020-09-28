@@ -7,17 +7,21 @@
 #include <com/sun/star/frame/XController.hpp>
 #include <com/sun/star/frame/XModel.hpp>
 #include <com/sun/star/uno/XComponentContext.hpp>
+#include <com/sun/star/beans/XPropertySet.hpp>
 #include <com/sun/star/lang/IndexOutOfBoundsException.hpp>
 #include <com/sun/star/sheet/XSpreadsheetDocument.hpp>
 #include <com/sun/star/sheet/XSpreadsheets.hpp>
 #include <com/sun/star/sheet/XSpreadsheet.hpp>
 #include <com/sun/star/table/XCell.hpp>
 #include <com/sun/star/text/XSimpleText.hpp>
+#include <com/sun/star/view/XSelectionSupplier.hpp>
+#include <com/sun/star/view/XMultiSelectionSupplier.hpp>
 #include <com/sun/star/text/XTextDocument.hpp>
 #include <com/sun/star/text/XTextTable.hpp>
 #include <com/sun/star/text/XTextContent.hpp>
 #include <com/sun/star/frame/XComponentLoader.hpp>
 #include <com/sun/star/beans/XPropertySet.hpp>
+#include <stdexcept>
 
 #include <com/sun/star/bridge/XUnoUrlResolver.hpp>
 #include <com/sun/star/lang/XMultiServiceFactory.hpp>
@@ -41,6 +45,7 @@ using namespace com::sun::star::table;
 using namespace com::sun::star::text;
 using namespace com::sun::star::container;
 using namespace com::sun::star::beans;
+using namespace com::sun::star::view;
 
 using com::sun::star::beans::PropertyValue;
 using com::sun::star::util::URL;
@@ -52,18 +57,19 @@ using namespace cppu;
 // filling table
 void fillTable(Reference <XTextTable> &xTable)
 {
-    Reference< XText > xText;
-    Reference< XTextCursor> xTextCursor;
-    Reference<XCell> xCell;
+    Reference < XCell > xCell;
+    Reference < XText > xText;
+    Reference < XTextCursor > xTextCursor;
+    Reference < XTextRange > xTextRange;
 
     for (auto cell : xTable->getCellNames())
     {
         xCell = xTable->getCellByName(cell);
         std::string cell_pos = "row_"  + std::to_string(cell[1] - '1' + 1) + 
                                " col_" + std::to_string(cell[0] - 'A' + 1);
-        xText = Reference<XText>(xCell,UNO_QUERY);
-        xTextCursor = xText->createTextCursor();
-        xTextCursor->setString(OUString::createFromAscii(cell_pos.c_str()));
+        xText = Reference < XText > (xCell, UNO_QUERY);
+        xTextRange = xText->getStart();
+        xTextRange->setString(OUString::createFromAscii(cell_pos.c_str()));
     }
 }
 
@@ -72,14 +78,14 @@ void openNewFileWithTables( Reference< XFrame > &rxFrame )
 {
     srand(time(NULL));
 
-    if ( !rxFrame.is() )
+    if ( not rxFrame.is() )
     return;
 
 ///////////////
 
-   Reference< XComponentLoader > rComponentLoader (rxFrame, UNO_QUERY);
+   Reference< XComponentLoader > rComponentLoader(rxFrame, UNO_QUERY);
 
-   if ( !rComponentLoader.is())
+   if ( not rComponentLoader.is() )
    {
         std::cerr << "Can't open new OOWriter file" << std::endl;
         return;
@@ -98,22 +104,22 @@ void openNewFileWithTables( Reference< XFrame > &rxFrame )
 ////////////////
 
     Reference<XTextRange> xTextRange = xText->getStart();
-    Reference< XTextCursor> xTextCursor = xText->createTextCursor();
 
     int numberOfTables = rand() % 7 + 2;
 
     for (int i = 0; i < numberOfTables; i++)
     {
-        xTextCursor->gotoEnd(false);
-        std::string tableNum = "Table: " + std::to_string(i);
-        xTextRange->setString(OUString::createFromAscii(tableNum.c_str()));
+        xTextRange->setString(OUString::createFromAscii(("Table: " + std::to_string(i)).c_str()));
         Reference<XMultiServiceFactory> oDocMSF (xTextDocument,UNO_QUERY);
         Reference <XTextTable> xTable (oDocMSF->createInstance(
                 OUString::createFromAscii("com.sun.star.text.TextTable")),UNO_QUERY);
 
-        if ( !xTable.is() )
-        return;
-        
+        if ( not xTable.is() )
+        {
+            std::cerr << "Couldn't get table!" << std::endl;
+            return;
+        }
+
         int numOfRows = rand() % 8 + 3;
         int numOfCol = rand() % 4 + 3;
 
@@ -123,6 +129,8 @@ void openNewFileWithTables( Reference< XFrame > &rxFrame )
         Reference <XTextContent> xTextContent(xTable,UNO_QUERY);
         xText->insertTextContent(xTextRange, xTextContent,(unsigned char) 0);
         fillTable(xTable);
+        xTextRange->setString(OUString::createFromAscii("\n"));
+        xTextRange = xText->getEnd();
     }
 }
 
@@ -131,7 +139,7 @@ void transpose(Reference <XTextTable> &xTable)
 {
     Reference <XCellRange> xCellRange(xTable, UNO_QUERY);
 
-    if ( !xCellRange.is())
+    if (not xCellRange.is())
     {
         std::cerr << "Some trouble connect to table" << std::endl;
         return;
@@ -140,13 +148,14 @@ void transpose(Reference <XTextTable> &xTable)
     try
     {
         Reference <XCell> xCell;
+        Reference <XText> xText1, xText2;
         for (int i = 0; ;i++)
         {
             xCell = xCellRange->getCellByPosition(i, i);
             for (int j = 0; j < i; j++)
-            {   
-                Reference <XText> xText1(xCellRange->getCellByPosition(j, i), UNO_QUERY);
-                Reference <XText> xText2(xCellRange->getCellByPosition(i, j), UNO_QUERY);
+            {
+                xText1 = Reference<XText> (xCellRange->getCellByPosition(j, i), UNO_QUERY);
+                xText2 = Reference<XText> (xCellRange->getCellByPosition(i, j), UNO_QUERY);
                 auto tmpString = xText1->getString();
                 xText1->setString(xText2->getString());
                 xText2->setString(tmpString);
@@ -159,27 +168,28 @@ void transpose(Reference <XTextTable> &xTable)
         value, then further processing of this table is interrupted and
         processing of next table begins, if any.
         */
-        std::cout << "To define size of table\n" << std::endl;
+        // std::cout << "To define size of table\n" << std::endl;
+        return;
     }
 }
 
 // Local function to write Time to cell A1
 void tablesHandling( Reference< XFrame > &rxFrame )
 {
-    if ( !rxFrame.is() )
+    if (not rxFrame.is())
     return;
 
-    Reference< XController > xCtrl = rxFrame->getController();
-    if ( !xCtrl.is() )
+    Reference<XController> xCtrl = rxFrame->getController();
+    if (not xCtrl.is())
     return;
 
-    Reference< XModel > xModel = xCtrl->getModel();
-    if ( !xModel.is() )
+    Reference<XModel> xModel = xCtrl->getModel();
+    if (not xModel.is())
     return;
 
-    Reference < XTextDocument > xTextDocument (xModel, UNO_QUERY);
+    Reference<XTextDocument> xTextDocument (xModel, UNO_QUERY);
 
-    if ( !xTextDocument.is() )
+    if (not xTextDocument.is())
     {
         std::cerr << "Cant't connect into current writer document" << std::endl;
         return;

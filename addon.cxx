@@ -138,20 +138,28 @@ void openNewFileWithTables( Reference< XFrame > &rxFrame )
 void transpose(Reference <XTextTable> &xTable)
 {
     Reference <XCellRange> xCellRange(xTable, UNO_QUERY);
-
     if (not xCellRange.is())
     {
         std::cerr << "Some trouble connect to table" << std::endl;
         return;
     }
 
+    Reference < XTextTableCursor > xTextTableCursor = 
+        xTable->createCursorByCellName(OUString::createFromAscii("A1"));
+    xTextTableCursor->gotoEnd(false);
+
+    int32_t numberOfRows = xTextTableCursor->getRangeName().copy(1).toInt32();
+    int32_t numberOfColumns = xTextTableCursor->getRangeName()[0] - 'A' + 1;
+
     try
     {
+        if (numberOfRows == 0 or numberOfColumns > 26)
+            throw IndexOutOfBoundsException();
+
+        int32_t maxDiagSize = std::min(numberOfRows, numberOfColumns);
         Reference <XCell> xCell;
         Reference <XText> xText1, xText2;
-        for (int i = 0; ;i++)
-        {
-            xCell = xCellRange->getCellByPosition(i, i);
+        for (int i = 0; i < maxDiagSize; i++)
             for (int j = 0; j < i; j++)
             {
                 xText1 = Reference<XText> (xCellRange->getCellByPosition(j, i), UNO_QUERY);
@@ -160,22 +168,19 @@ void transpose(Reference <XTextTable> &xTable)
                 xText1->setString(xText2->getString());
                 xText2->setString(tmpString);
             }
-        }
     }
     catch (IndexOutOfBoundsException &)
     {
-        /* To define table bound. If index (i, i) will exceed acceptable
-        value, then further processing of this table is interrupted and
-        processing of next table begins, if any.
-        */
-        // std::cout << "To define size of table\n" << std::endl;
-        return;
+        std::cerr << "Very big number of columns (>26) or index out of bound" << std::endl;
     }
 }
 
-// Local function to write Time to cell A1
+
 void tablesHandling( Reference< XFrame > &rxFrame )
 {
+    /* 
+    The number of text table columns can't exceed 26 !!!
+    */
     if (not rxFrame.is())
     return;
 
@@ -187,7 +192,7 @@ void tablesHandling( Reference< XFrame > &rxFrame )
     if (not xModel.is())
     return;
 
-    Reference<XTextDocument> xTextDocument (xModel, UNO_QUERY);
+    Reference < XTextDocument > xTextDocument (xModel, UNO_QUERY);
 
     if (not xTextDocument.is())
     {
@@ -201,7 +206,7 @@ void tablesHandling( Reference< XFrame > &rxFrame )
     for (auto name : xNameAccess->getElementNames())
     {
         Any table = xNameAccess->getByName(name);
-        Reference <XTextTable> xTable;
+        Reference < XTextTable > xTable;
         table >>= xTable;
         transpose(xTable);
     }

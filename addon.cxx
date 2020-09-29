@@ -54,6 +54,7 @@ using namespace cppu;
 // This is the service name an Add-On has to implement
 #define SERVICE_NAME "com.sun.star.frame.ProtocolHandler"
 
+
 // filling table
 void fillTable(Reference <XTextTable> &xTable)
 {
@@ -62,54 +63,31 @@ void fillTable(Reference <XTextTable> &xTable)
     Reference < XTextCursor > xTextCursor;
     Reference < XTextRange > xTextRange;
 
-    for (auto cell : xTable->getCellNames())
+    for (auto cellName : xTable->getCellNames())
     {
-        xCell = xTable->getCellByName(cell);
-        std::string cell_pos = "row_"  + std::to_string(cell[1] - '1' + 1) + 
-                               " col_" + std::to_string(cell[0] - 'A' + 1);
+        xCell = xTable->getCellByName(cellName);
+        std::string cellPos = "row_"  + std::to_string(cellName.copy(1).toInt32()) + 
+                               " col_" + std::to_string(cellName[0] - 'A' + 1);
         xText = Reference < XText > (xCell, UNO_QUERY);
         xTextRange = xText->getStart();
-        xTextRange->setString(OUString::createFromAscii(cell_pos.c_str()));
+        xTextRange->setString(OUString::createFromAscii(cellPos.c_str()));
     }
 }
 
-// Local function to write Date to cell A1
-void openNewFileWithTables( Reference< XFrame > &rxFrame )
+
+void createTables(Reference < XTextDocument > &xTextDocument)
 {
     srand(time(NULL));
 
-    if ( not rxFrame.is() )
-    return;
-
-///////////////
-
-   Reference< XComponentLoader > rComponentLoader(rxFrame, UNO_QUERY);
-
-   if ( not rComponentLoader.is() )
-   {
-        std::cerr << "Can't open new OOWriter file" << std::endl;
-        return;
-   }
-
-//get an instance of the OOowriter document
-    Reference< XComponent > xWriterComponent = rComponentLoader->loadComponentFromURL(
-        OUString::createFromAscii("private:factory/swriter"),
-        OUString::createFromAscii("_blank"),
-        0,
-        Sequence < ::com::sun::star::beans::PropertyValue >());
-
-    Reference < XTextDocument > xTextDocument (xWriterComponent,UNO_QUERY);
     Reference< XText > xText = xTextDocument->getText();
-
-////////////////
-
     Reference<XTextRange> xTextRange = xText->getStart();
 
-    int numberOfTables = rand() % 7 + 2;
+    int32_t numberOfTables = rand() % 7 + 2;
 
     for (int i = 0; i < numberOfTables; i++)
     {
-        xTextRange->setString(OUString::createFromAscii(("Table: " + std::to_string(i)).c_str()));
+        xTextRange->setString(OUString::createFromAscii(
+                                ("Table " + std::to_string(i)).c_str()));
         Reference<XMultiServiceFactory> oDocMSF (xTextDocument,UNO_QUERY);
         Reference <XTextTable> xTable (oDocMSF->createInstance(
                 OUString::createFromAscii("com.sun.star.text.TextTable")),UNO_QUERY);
@@ -133,6 +111,31 @@ void openNewFileWithTables( Reference< XFrame > &rxFrame )
         xTextRange = xText->getEnd();
     }
 }
+
+
+// Local function to write Date to cell A1
+void openNewFileWithTables(Reference < XFrame > &rxFrame)
+{
+    if ( not rxFrame.is() )
+    return;
+
+    Reference< XComponentLoader > rComponentLoader(rxFrame, UNO_QUERY);
+
+    if ( not rComponentLoader.is() )
+    return;
+
+//get an instance of the OOowriter document
+    Reference< XComponent > xWriterComponent = rComponentLoader->loadComponentFromURL(
+        OUString::createFromAscii("private:factory/swriter"),
+        OUString::createFromAscii("_blank"),
+        0,
+        Sequence < ::com::sun::star::beans::PropertyValue >());
+    Reference < XTextDocument > xTextDocument (xWriterComponent,UNO_QUERY);
+//////////////////////////////////////////
+
+    createTables(xTextDocument);
+}
+
 
 // transpose table
 void transpose(Reference <XTextTable> &xTable)

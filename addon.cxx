@@ -1,7 +1,9 @@
 #include <iostream>
 #include <ctime>
-#include <addon.hxx>
 #include <string>
+#include <addon.hxx>
+#include <stdexcept>
+
 #include <com/sun/star/beans/PropertyValue.hpp>
 #include <com/sun/star/frame/XFrame.hpp>
 #include <com/sun/star/frame/XController.hpp>
@@ -21,7 +23,6 @@
 #include <com/sun/star/text/XTextContent.hpp>
 #include <com/sun/star/frame/XComponentLoader.hpp>
 #include <com/sun/star/beans/XPropertySet.hpp>
-#include <stdexcept>
 
 #include <com/sun/star/bridge/XUnoUrlResolver.hpp>
 #include <com/sun/star/lang/XMultiServiceFactory.hpp>
@@ -168,12 +169,13 @@ void transpose(Reference <XTextTable> &xTable)
     }
     catch (IndexOutOfBoundsException &)
     {
-        std::cerr << "Very big number of columns (>26) or index out of bound" << std::endl;
+        std::cerr << "Very big number of columns";
+        std::cerr << " (>26) or index out of bound" << std::endl;
     }
 }
 
 
-void tablesHandling( Reference< XFrame > &rxFrame )
+void tableProcessing( Reference< XFrame > &rxFrame )
 {
     /* 
     The number of text table columns can't exceed 26 !!!
@@ -210,30 +212,30 @@ void tablesHandling( Reference< XFrame > &rxFrame )
 }
 
 
-// XDispatch implementer class "CreatorAndTablesHandlingDispatchImpl" methods
+// XDispatch implementer class "CreatorAndTableProcessingDispatchImpl" methods
 
-void SAL_CALL CreatorAndTablesHandlingDispatchImpl::dispatch( const URL& aURL, const Sequence < PropertyValue >& lArgs )
+void SAL_CALL CreatorAndTableProcessingDispatchImpl::dispatch( const URL& aURL, const Sequence < PropertyValue >& lArgs )
 {
     if ( aURL.Protocol.equalsAscii("inco.niocs.test.protocolhandler:") )
     {
-	printf("DEBUG>>> CreatorAndTablesHandlingDispatchImpl::dispatch() called. this = %p, command = %s\n", this,
+	printf("DEBUG>>> CreatorAndTableProcessingDispatchImpl::dispatch() called. this = %p, command = %s\n", this,
 	    OUStringToOString( aURL.Path, RTL_TEXTENCODING_ASCII_US ).getStr()); fflush(stdout);
         if ( aURL.Path.equalsAscii( "OpenNew" ) )
         {
             openNewFileWithTables( mxFrame );
         }
-        else if ( aURL.Path.equalsAscii( "TablesHandling" ) )
+        else if ( aURL.Path.equalsAscii( "TableProcessing" ) )
         {
-            tablesHandling( mxFrame );
+            tableProcessing( mxFrame );
         }
     }
 }
 
-void SAL_CALL CreatorAndTablesHandlingDispatchImpl::addStatusListener( const Reference< XStatusListener >& xControl, const URL& aURL )
+void SAL_CALL CreatorAndTableProcessingDispatchImpl::addStatusListener( const Reference< XStatusListener >& xControl, const URL& aURL )
 {
 }
 
-void SAL_CALL CreatorAndTablesHandlingDispatchImpl::removeStatusListener( const Reference< XStatusListener >& xControl, const URL& aURL )
+void SAL_CALL CreatorAndTableProcessingDispatchImpl::removeStatusListener( const Reference< XStatusListener >& xControl, const URL& aURL )
 {
 }
 
@@ -259,9 +261,9 @@ Reference< XDispatch > SAL_CALL Addon::queryDispatch( const URL& aURL, const ::r
 	printf("DEBUG>>> Addon::queryDispatch() called. this = %p, command = %s\n", this,
 	    OUStringToOString( aURL.Path, RTL_TEXTENCODING_ASCII_US ).getStr()); fflush(stdout);
         if ( aURL.Path.equalsAscii( "OpenNew" ) )
-            xRet = new CreatorAndTablesHandlingDispatchImpl( mxFrame );
-        else if ( aURL.Path.equalsAscii( "TablesHandling" ) )
-            xRet = xRet = new CreatorAndTablesHandlingDispatchImpl( mxFrame );
+            xRet = new CreatorAndTableProcessingDispatchImpl( mxFrame );
+        else if ( aURL.Path.equalsAscii( "TableProcessing" ) )
+            xRet = xRet = new CreatorAndTableProcessingDispatchImpl( mxFrame );
     }
 
     return xRet;

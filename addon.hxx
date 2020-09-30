@@ -28,12 +28,12 @@ namespace com
 }
 
 
-class CreatorAndTablesHandlingDispatchImpl : public cppu::WeakImplHelper1<com::sun::star::frame::XDispatch>
+class CreatorAndTableProcessingDispatchImpl : public cppu::WeakImplHelper1<com::sun::star::frame::XDispatch>
 {
 private:
     ::com::sun::star::uno::Reference< ::com::sun::star::frame::XFrame > mxFrame;
 public:
-    CreatorAndTablesHandlingDispatchImpl( const ::com::sun::star::uno::Reference< ::com::sun::star::frame::XFrame > &rxFrame )
+    CreatorAndTableProcessingDispatchImpl( const ::com::sun::star::uno::Reference< ::com::sun::star::frame::XFrame > &rxFrame )
 	: mxFrame( rxFrame )
     {
 	   printf("DEBUG>>> Created CreatorAndTablesHandlingDispatchImpl object : %p\n", this); fflush(stdout);

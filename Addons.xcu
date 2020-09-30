@@ -16,12 +16,12 @@
  *   except in compliance with the License. You may obtain a copy of
  *   the License at http://www.apache.org/licenses/LICENSE-2.0 .
 -->
+
 <oor:component-data xmlns:oor="http://openoffice.org/2001/registry" xmlns:xs="http://www.w3.org/2001/XMLSchema" oor:name="Addons" oor:package="org.openoffice.Office">
     <node oor:name="AddonUI">
         <node oor:name="OfficeMenuBar">
             <node oor:name="inco.niocs.test.protocolhandler.menu" oor:op="replace">
                 <prop oor:name="Title" oor:type="xs:string">
-                    <value/>
                     <value xml:lang="en-US">My Addon</value>
                 </prop>
                 <prop oor:name="Target" oor:type="xs:string">
@@ -42,9 +42,9 @@
                             <value>com.sun.star.text.TextDocument</value>
                         </prop>
                     </node>
-		    <node oor:name="m2" oor:op="replace">
+                    <node oor:name="m2" oor:op="replace">
                         <prop oor:name="URL" oor:type="xs:string">
-                            <value>inco.niocs.test.protocolhandler:TablesHandling</value>
+                            <value>inco.niocs.test.protocolhandler:TableProcessing</value>
                         </prop>
                         <prop oor:name="Title" oor:type="xs:string">
                             <value xml:lang="en-US">Tables handling</value>
@@ -59,64 +59,5 @@
                 </node>
             </node>
         </node>
-
-<!-- 	<node oor:name="OfficeToolBar">
-            <node oor:name="inco.niocs.test.protocolhandler.toolbar" oor:op="replace">
-                <node oor:name="m1" oor:op="replace">
-                    <prop oor:name="URL" oor:type="xs:string">
-                        <value>inco.niocs.test.protocolhandler:OpenNew</value>
-                    </prop>
-                    <prop oor:name="Title" oor:type="xs:string">
-                        <value xml:lang="en-US">Open new</value>
-                    </prop>
-                    <prop oor:name="Target" oor:type="xs:string">
-                        <value>_self</value>
-                    </prop>
-                    <prop oor:name="Context" oor:type="xs:string">
-                        <value>com.sun.star.text.TextDocument</value>
-                    </prop>
-                </node>
-                <node oor:name="m2" oor:op="replace">
-                    <prop oor:name="URL" oor:type="xs:string">
-                        <value>inco.niocs.test.protocolhandler:TablesHandling</value>
-                    </prop>
-                    <prop oor:name="ImageIdentifier" oor:type="xs:string">
-                        <value/>
-                    </prop>
-                    <prop oor:name="Title" oor:type="xs:string">
-                        <value/>
-                        <value xml:lang="en-US">Tables handling</value>
-                    </prop>
-                    <prop oor:name="Target" oor:type="xs:string">
-                        <value>_self</value>
-                    </prop>
-                    <prop oor:name="Context" oor:type="xs:string">
-                        <value>com.sun.star.text.TextDocument</value>
-                    </prop>
-                </node>
-            </node>
-        </node>
-	<node oor:name="Images">
-            <node oor:name="inco.niocs.test.protocolhandler.date" oor:op="replace">
-                <prop oor:name="URL">
-                    <value>inco.niocs.test.protocolhandler:OpenNew</value>
-                </prop>
-                <node oor:name="UserDefinedImages">
-                    <prop oor:name="ImageSmallURL">
-			<value>%origin%/images/date.png</value>
-                    </prop>	
-                </node>
-            </node>
-	    <node oor:name="inco.niocs.test.protocolhandler.time" oor:op="replace">
-                <prop oor:name="URL">
-                    <value>inco.niocs.test.protocolhandler:TablesHandling</value>
-                </prop>
-                <node oor:name="UserDefinedImages">
-                    <prop oor:name="ImageSmallURL">
-			<value>%origin%/images/time.png</value>
-                    </prop>	
-                </node>
-            </node>
-        </node> -->
     </node>
 </oor:component-data>

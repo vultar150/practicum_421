@@ -90,7 +90,8 @@ void createTables(Reference < XTextDocument > &xTextDocument)
                                 ("Table " + std::to_string(i)).c_str()));
         Reference<XMultiServiceFactory> oDocMSF (xTextDocument,UNO_QUERY);
         Reference <XTextTable> xTable (oDocMSF->createInstance(
-                OUString::createFromAscii("com.sun.star.text.TextTable")),UNO_QUERY);
+                OUString::createFromAscii("com.sun.star.text.TextTable")),
+                UNO_QUERY);
 
         int numOfRows = rand() % 8 + 3;
         int numOfCol = rand() % 4 + 3;
@@ -133,7 +134,7 @@ void openNewFileWithTables(Reference < XFrame > &rxFrame)
 // transpose table
 void transpose(Reference <XTextTable> &xTable)
 {
-    Reference <XCellRange> xCellRange(xTable, UNO_QUERY);
+    Reference < XCellRange > xCellRange(xTable, UNO_QUERY);
     if (not xCellRange.is())
     {
         std::cerr << "Some trouble connect to table" << std::endl;
@@ -153,13 +154,17 @@ void transpose(Reference <XTextTable> &xTable)
             throw IndexOutOfBoundsException();
 
         int32_t maxDiagSize = std::min(numberOfRows, numberOfColumns);
-        Reference <XCell> xCell;
-        Reference <XText> xText1, xText2;
+        Reference < XCell > xCell;
+        Reference < XText > xText1, xText2;
         for (int i = 0; i < maxDiagSize; i++)
             for (int j = 0; j < i; j++)
             {
-                xText1 = Reference<XText> (xCellRange->getCellByPosition(j, i), UNO_QUERY);
-                xText2 = Reference<XText> (xCellRange->getCellByPosition(i, j), UNO_QUERY);
+                xText1 = Reference < XText > (
+                            xCellRange->getCellByPosition(j, i),
+                            UNO_QUERY);
+                xText2 = Reference < XText > (
+                            xCellRange->getCellByPosition(i, j),
+                            UNO_QUERY);
                 auto tmpString = xText1->getString();
                 xText1->setString(xText2->getString());
                 xText2->setString(tmpString);
@@ -181,11 +186,11 @@ void tableProcessing( Reference< XFrame > &rxFrame )
     if (not rxFrame.is())
     return;
 
-    Reference<XController> xCtrl = rxFrame->getController();
+    Reference < XController > xCtrl = rxFrame->getController();
     if (not xCtrl.is())
     return;
 
-    Reference<XModel> xModel = xCtrl->getModel();
+    Reference < XModel > xModel = xCtrl->getModel();
     if (not xModel.is())
     return;
 
@@ -197,7 +202,8 @@ void tableProcessing( Reference< XFrame > &rxFrame )
         return;
     }
 
-    Reference < XTextTablesSupplier > xTextTablesSupplier(xTextDocument, UNO_QUERY);
+    Reference < XTextTablesSupplier > xTextTablesSupplier(xTextDocument, 
+                                                          UNO_QUERY);
     Reference < XNameAccess > xNameAccess = xTextTablesSupplier->getTextTables();
 
     for (auto name : xNameAccess->getElementNames())

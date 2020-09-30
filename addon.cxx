@@ -66,11 +66,12 @@ void fillTable(Reference <XTextTable> &xTable)
     for (auto cellName : xTable->getCellNames())
     {
         xCell = xTable->getCellByName(cellName);
-        std::string cellPos = "row_"  + std::to_string(cellName.copy(1).toInt32()) + 
-                               " col_" + std::to_string(cellName[0] - 'A' + 1);
+        OUString cellPos = "row_" + cellName.copy(1) + " col_";
+        cellPos += OUString::createFromAscii(
+                        std::to_string(cellName[0] - 'A' + 1).c_str());
         xText = Reference < XText > (xCell, UNO_QUERY);
         xTextRange = xText->getStart();
-        xTextRange->setString(OUString::createFromAscii(cellPos.c_str()));
+        xTextRange->setString(cellPos);
     }
 }
 
@@ -91,12 +92,6 @@ void createTables(Reference < XTextDocument > &xTextDocument)
         Reference<XMultiServiceFactory> oDocMSF (xTextDocument,UNO_QUERY);
         Reference <XTextTable> xTable (oDocMSF->createInstance(
                 OUString::createFromAscii("com.sun.star.text.TextTable")),UNO_QUERY);
-
-        if ( not xTable.is() )
-        {
-            std::cerr << "Couldn't get table!" << std::endl;
-            return;
-        }
 
         int numOfRows = rand() % 8 + 3;
         int numOfCol = rand() % 4 + 3;
@@ -132,7 +127,6 @@ void openNewFileWithTables(Reference < XFrame > &rxFrame)
         Sequence < ::com::sun::star::beans::PropertyValue >());
     Reference < XTextDocument > xTextDocument (xWriterComponent,UNO_QUERY);
 //////////////////////////////////////////
-
     createTables(xTextDocument);
 }
 

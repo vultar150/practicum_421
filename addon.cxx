@@ -1,8 +1,6 @@
 #include <iostream>
-#include <ctime>
 #include <string>
 #include <addon.hxx>
-#include <stdexcept>
 
 #include <com/sun/star/beans/PropertyValue.hpp>
 #include <com/sun/star/frame/XFrame.hpp>

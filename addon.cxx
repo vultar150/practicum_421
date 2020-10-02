@@ -59,7 +59,6 @@ void fillTable(Reference <XTextTable> &xTable)
 {
     Reference < XCell > xCell;
     Reference < XText > xText;
-    Reference < XTextCursor > xTextCursor;
     Reference < XTextRange > xTextRange;
 
     for (auto cellName : xTable->getCellNames())
@@ -108,7 +107,6 @@ void createTables(Reference < XTextDocument > &xTextDocument)
 }
 
 
-// Local function to write Date to cell A1
 void openNewFileWithTables(Reference < XFrame > &rxFrame)
 {
     if ( not rxFrame.is() )
@@ -134,6 +132,9 @@ void openNewFileWithTables(Reference < XFrame > &rxFrame)
 // transpose table
 void transpose(Reference <XTextTable> &xTable)
 {
+    /* 
+    The number of text table columns can't exceed 26 !!!
+    */
     Reference < XCellRange > xCellRange(xTable, UNO_QUERY);
     if (not xCellRange.is())
     {
@@ -218,7 +219,9 @@ void tableProcessing( Reference< XFrame > &rxFrame )
 
 // XDispatch implementer class "CreatorAndTableProcessingDispatchImpl" methods
 
-void SAL_CALL CreatorAndTableProcessingDispatchImpl::dispatch( const URL& aURL, const Sequence < PropertyValue >& lArgs )
+void SAL_CALL CreatorAndTableProcessingDispatchImpl::dispatch( 
+                                    const URL& aURL, 
+                                    const Sequence < PropertyValue >& lArgs )
 {
     if ( aURL.Protocol.equalsAscii("inco.niocs.test.protocolhandler:") )
     {
@@ -235,19 +238,23 @@ void SAL_CALL CreatorAndTableProcessingDispatchImpl::dispatch( const URL& aURL, 
     }
 }
 
-void SAL_CALL CreatorAndTableProcessingDispatchImpl::addStatusListener( const Reference< XStatusListener >& xControl, const URL& aURL )
+
+void SAL_CALL CreatorAndTableProcessingDispatchImpl::addStatusListener( 
+                                const Reference< XStatusListener >& xControl,
+                                const URL& aURL)
 {
 }
 
-void SAL_CALL CreatorAndTableProcessingDispatchImpl::removeStatusListener( const Reference< XStatusListener >& xControl, const URL& aURL )
+
+void SAL_CALL CreatorAndTableProcessingDispatchImpl::removeStatusListener( 
+                                const Reference< XStatusListener >& xControl,
+                                const URL& aURL)
 {
 }
-
 
 
 // ProtocolHandler implementation "Addon" class methods
-
-void SAL_CALL Addon::initialize( const Sequence< Any >& aArguments )
+void SAL_CALL Addon::initialize(const Sequence< Any >& aArguments)
 {
     Reference < XFrame > xFrame;
     if ( aArguments.getLength() )
@@ -257,30 +264,38 @@ void SAL_CALL Addon::initialize( const Sequence< Any >& aArguments )
     }
 }
 
-Reference< XDispatch > SAL_CALL Addon::queryDispatch( const URL& aURL, const ::rtl::OUString& sTargetFrameName, sal_Int32 nSearchFlags )
+
+Reference< XDispatch > SAL_CALL Addon::queryDispatch( 
+                                    const URL& aURL, 
+                                    const ::rtl::OUString& sTargetFrameName, 
+                                    sal_Int32 nSearchFlags)
 {
     Reference < XDispatch > xRet;
     if ( aURL.Protocol.equalsAscii("inco.niocs.test.protocolhandler:") )
     {
 	printf("DEBUG>>> Addon::queryDispatch() called. this = %p, command = %s\n", this,
 	    OUStringToOString( aURL.Path, RTL_TEXTENCODING_ASCII_US ).getStr()); fflush(stdout);
-        if ( aURL.Path.equalsAscii( "OpenNew" ) )
+        if ( aURL.Path.equalsAscii("OpenNew") or 
+             aURL.Path.equalsAscii("TableProcessing") )
+        {
             xRet = new CreatorAndTableProcessingDispatchImpl( mxFrame );
-        else if ( aURL.Path.equalsAscii( "TableProcessing" ) )
-            xRet = xRet = new CreatorAndTableProcessingDispatchImpl( mxFrame );
+        }
     }
 
     return xRet;
 }
 
 
-Sequence < Reference< XDispatch > > SAL_CALL Addon::queryDispatches( const Sequence < DispatchDescriptor >& seqDescripts )
+Sequence < Reference< XDispatch > > SAL_CALL Addon::queryDispatches( 
+                        const Sequence < DispatchDescriptor >& seqDescripts )
 {
     sal_Int32 nCount = seqDescripts.getLength();
     Sequence < Reference < XDispatch > > lDispatcher( nCount );
 
     for( sal_Int32 i=0; i<nCount; ++i )
-        lDispatcher[i] = queryDispatch( seqDescripts[i].FeatureURL, seqDescripts[i].FrameName, seqDescripts[i].SearchFlags );
+        lDispatcher[i] = queryDispatch( seqDescripts[i].FeatureURL, 
+                                        seqDescripts[i].FrameName, 
+                                        seqDescripts[i].SearchFlags);
 
     return lDispatcher;
 }
@@ -300,7 +315,8 @@ Sequence< ::rtl::OUString > SAL_CALL Addon_getSupportedServiceNames()
     return aRet;
 }
 
-Reference< XInterface > SAL_CALL Addon_createInstance( const Reference< XComponentContext > & rContext)
+Reference< XInterface > SAL_CALL Addon_createInstance( 
+                            const Reference< XComponentContext > & rContext)
 {
     return (cppu::OWeakObject*) new Addon( rContext );
 }

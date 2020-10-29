@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Data>
-    <number_of_processors>2</number_of_processors>
-    <job id="0" execution_time="39"/>
-    <job id="1" execution_time="18"/>
-    <job id="2" execution_time="46"/>
-    <job id="3" execution_time="30"/>
-    <job id="4" execution_time="5"/>
+    <processors count="2"/>
+    <job id="0" execution_time="15"/>
+    <job id="1" execution_time="17"/>
+    <job id="2" execution_time="43"/>
+    <job id="3" execution_time="36"/>
+    <job id="4" execution_time="26"/>
 </Data>

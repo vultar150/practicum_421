@@ -34,8 +34,8 @@ void generateData (generatorParamType& generatorParams, char* fileName)
     XMLNode* xmlNode = xmlDocument.NewElement("Data"); // creating root tag
     xmlDocument.InsertEndChild(xmlNode); // bind root tag
 
-    XMLElement* pElement = xmlDocument.NewElement("number_of_processors");
-    pElement->SetText(std::stoi(generatorParams["NUMBER_OF_PROC"]));
+    XMLElement* pElement = xmlDocument.NewElement("processors");
+    pElement->SetAttribute("count", std::stoi(generatorParams["NUMBER_OF_PROC"]));
     xmlNode->InsertEndChild(pElement);
     int numberOfJobs = std::stoi(generatorParams["NUMBER_OF_JOBS"]);
     for (int i = 0; i < numberOfJobs; i++)

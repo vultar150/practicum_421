@@ -6,7 +6,7 @@
 using namespace tinyxml2;
 
 
-// types for representation of one job and one proceccor
+// type for representation of one proceccor
 
 Processor::Processor(int exTime) : executionTime(exTime) {}
 
@@ -35,7 +35,7 @@ void Processor::print() const
     }
 }
 
-// end types for representation of one job and one proceccor
+// end type for representation of one proceccor
 
 
 
@@ -137,6 +137,9 @@ void TypeDecision::updateTargetValue()
     auto min = (*std::min_element(data.begin(), data.end(), cmp)).second.executionTime;
     targetValue = max - min;
 }
+
+
+int TypeDecision::targetFunc() const { return targetValue; }
 
 
 void TypeDecision::print() const

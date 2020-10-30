@@ -9,7 +9,6 @@
 
 
 #include <unordered_map>
-#include <vector>
 
 
 // temperature decrease laws
@@ -70,18 +69,7 @@ class ThirdLaw : public AbstractTDecreaseLaw
 // end temperature decrease laws
 
 
-// types for representation of one job and one proceccor
-
-// struct Job
-// {
-//     int id;
-//     int executionTime;
-//     Job(int id=0, int t=0);
-//     Job(const Job& job);
-//     Job& operator=(const Job& job);
-//     void print() const;
-// };
-
+// type for representation of one proceccor
 
 struct Processor : public std::unordered_map<int, int>
 {
@@ -92,7 +80,7 @@ struct Processor : public std::unordered_map<int, int>
     void print() const;
 };
 
-// end types for representation of one job and one proceccor
+// end type for representation of one proceccor
 
 
 // type of decision
@@ -103,7 +91,7 @@ class AbstractTypeDecision
     public:
 
         virtual void parseInputData(char* fileName)=0;
-        //  virtual int targetFunc()=0;
+        virtual int targetFunc() const=0;
         //  virtual int getTargetValue()=0;
         virtual void moveJob(int id, int from, int to)=0;
         virtual void updateTargetValue()=0;
@@ -125,7 +113,7 @@ class TypeDecision: public AbstractTypeDecision<std::unordered_map<int, Processo
         virtual void parseInputData(char* fileName) override;
         virtual void moveJob(int id, int from, int to) override;
         virtual void updateTargetValue() override;
-        // virtual int targetFunc() override;
+        virtual int targetFunc() const override;
         virtual void print() const override;
 
     protected:

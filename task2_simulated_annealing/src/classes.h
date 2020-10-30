@@ -126,18 +126,18 @@ class TypeDecision: public AbstractTypeDecision<std::unordered_map<int, Processo
 
 // Mutation operation
 
-// class Mutation
-// {
-//     public:
-//         virtual AbstractTypeDecision* mutate(AbstractTypeDecision* decision)=0;
-// };
+class Mutation
+{
+    public:
+        virtual AbstractTypeDecision* mutate(AbstractTypeDecision* decision)=0;
+};
 
 
-// class MyOperation: public Mutation
-// {
-//     public:
-//         virtual void mutate(AbstractTypeDecision* decision);
-// };
+class MyOperation: public Mutation
+{
+    public:
+        virtual void mutate(AbstractTypeDecision* decision);
+};
 
 // end mutation operation
 

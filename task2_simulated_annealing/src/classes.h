@@ -8,7 +8,7 @@
 #endif
 
 
-#include <list>
+#include <unordered_map>
 #include <vector>
 
 
@@ -72,25 +72,23 @@ class ThirdLaw : public AbstractTDecreaseLaw
 
 // types for representation of one job and one proceccor
 
-struct Job
-{
-    int id;
-    int executionTime;
-    Job(int id=0, int t=0);
-    Job(const Job& job);
-    Job& operator=(const Job& job);
-    void print() const;
-};
+// struct Job
+// {
+//     int id;
+//     int executionTime;
+//     Job(int id=0, int t=0);
+//     Job(const Job& job);
+//     Job& operator=(const Job& job);
+//     void print() const;
+// };
 
 
-struct Processor : public std::list<Job>
+struct Processor : public std::unordered_map<int, int>
 {
-    int id;
     int executionTime;
-    // std::list<Job> jobs;
-    Processor(int id=0, int t=0);
-    void push(const Job& job);
-    void eraise_job(std::list<Job>::iterator it);
+    Processor(int exTime=0);
+    void push(int id, int exTime);
+    void eraise_job(int id);
     void print() const;
 };
 
@@ -116,13 +114,13 @@ class AbstractTypeDecision
 };
 
 
-class TypeDecision: public AbstractTypeDecision<std::vector<Processor>>
+class TypeDecision: public AbstractTypeDecision<std::unordered_map<int, Processor>>
 {
     public:
 
-        TypeDecision();
+        TypeDecision(int targetValue=0);
         TypeDecision(char* fileName);
-       
+
         // TypeDecision(TypeDecision& decision);
         virtual void parseInputData(char* fileName) override;
         virtual void moveJob(int id, int from, int to) override;
@@ -131,7 +129,7 @@ class TypeDecision: public AbstractTypeDecision<std::vector<Processor>>
         virtual void print() const override;
 
     protected:
-        std::vector<Processor> data;
+        std::unordered_map<int, Processor> data;
         int targetValue;
 };
 

@@ -8,55 +8,31 @@ using namespace tinyxml2;
 
 // types for representation of one job and one proceccor
 
-Job::Job(int id, int t) : id(id), executionTime(t) {}
+Processor::Processor(int exTime) : executionTime(exTime) {}
 
 
-Job::Job(const Job& job)
+void Processor::push(int id, int exTime) 
 {
-    id = job.id;
-    executionTime = job.executionTime;
+    this->emplace(id, exTime);
+    executionTime += exTime;
 }
 
 
-Job& Job::operator=(const Job& job)
+void Processor::eraise_job(int id)
 {
-    if (this == &job) return *this;
-    id = job.id;
-    executionTime = job.executionTime;
-    return *this;
-}
-
-
-void Job::print() const
-{
-    std::cout << "\tJob: [" << id << ", "  
-              << executionTime << "]" << std::endl;
-}
-
-
-Processor::Processor(int id, int t) : id(id), executionTime(t) {}
-
-
-void Processor::push(const Job& job) 
-{
-    this->emplace_back(job);
-    executionTime += job.executionTime;
-}
-
-
-void Processor::eraise_job(std::list<Job>::iterator it)
-{
-    executionTime -= (*it).executionTime;
-    this->erase(it);
+    executionTime -= (*this)[id];
+    this->erase(id);
 }
 
 
 void Processor::print() const
 {
-    std::cout << "id = " << id << std::endl;
-    std::cout << "Execution time = " << executionTime << std::endl;
-    for (const auto& job : *this) job.print();
-    std::cout << std::endl;
+    std::cout << "EXECUTION TIME = " << executionTime << std::endl;
+    for (const auto& job : *this)
+    {
+        std::cout << "\tJOB: [ID, EXECUTION TIME] = [" << job.first << ", "  
+                  << job.second << "]" << std::endl;
+    }
 }
 
 // end types for representation of one job and one proceccor
@@ -96,7 +72,7 @@ double ThirdLaw::getDecreaseTemperature(int it) const
 
 // type of decision
 
-TypeDecision::TypeDecision() {}
+TypeDecision::TypeDecision(int targetValue) : targetValue(targetValue) {}
 
 
 TypeDecision::TypeDecision(char* fileName)
@@ -123,7 +99,10 @@ void TypeDecision::parseInputData(char* fileName)
     eResult = pListElement->QueryIntAttribute("count", &numOfProcessors);
     XMLCheckResult(eResult);
 
-    for (int i = 0; i < numOfProcessors; i++) { data.emplace_back(Processor(i)); }
+    for (int i = 0; i < numOfProcessors; i++) 
+    { 
+        data.emplace(i, Processor(0));
+    }
 
     pListElement = xmlNode->FirstChildElement("job");
     while (pListElement != nullptr)
@@ -133,7 +112,7 @@ void TypeDecision::parseInputData(char* fileName)
         XMLCheckResult(eResult);
         eResult = pListElement->QueryIntAttribute("execution_time", &executionTime);
         XMLCheckResult(eResult);
-        data[0].push(Job(id, executionTime));
+        data[0].push(id, executionTime);
         pListElement = pListElement->NextSiblingElement("job");
     }
     targetValue = data[0].executionTime;
@@ -142,95 +121,35 @@ void TypeDecision::parseInputData(char* fileName)
 
 void TypeDecision::moveJob(int id, int from, int to)
 {
-    auto lm = [&] (Job& job) { return job.id == id; };
-    auto it = std::find_if(data[from].begin(), data[from].end(), lm);
-    if (it == data[from].end()) 
-    {
-        std::cerr << "Wrong ID" << std::endl;
-        return;
-    }
-    Job job(*it);
-    data[from].eraise_job(it);
-    data[to].push(job);
+    data[to].push(id, data[from][id]);
+    data[from].eraise_job(id);
     updateTargetValue();
 }
 
 
 void TypeDecision::updateTargetValue()
 {
-    auto cmp = [&] (Processor& proc1, Processor& proc2) { 
-                        return proc1.executionTime < proc2.executionTime; };
-    auto max = (*std::max_element(data.begin(), data.end(), cmp)).executionTime;
-    auto min = (*std::min_element(data.begin(), data.end(), cmp)).executionTime;
+    using Tmp = const std::pair<int, Processor>;
+    auto cmp = [&](Tmp& p1, Tmp& p2) {
+                        return p1.second.executionTime < p2.second.executionTime;
+                    };
+    auto max = (*std::max_element(data.begin(), data.end(), cmp)).second.executionTime;
+    auto min = (*std::min_element(data.begin(), data.end(), cmp)).second.executionTime;
     targetValue = max - min;
 }
 
 
 void TypeDecision::print() const
 {
-    std::cout << "Target value = " << targetValue << std::endl;
-    for (const auto& proc : data) proc.print();
+    std::cout << "TARGET VALUE = " << targetValue << std::endl;
+    for (const auto& proc : data)
+    {
+        std::cout << "ID OF PROCESSOR = " << proc.first << std::endl; 
+        proc.second.print();
+    }
+    std::cout << "///////////////////////////" << std::endl;
+    std::cout << std::endl;
 }
-
-// template<typename ProcType>
-// TypeDecision<ProcType>::TypeDecision(char* fileName)
-// {
-//     std::cout << "SSS" << std::endl;
-//     this->parseInputData(fileName);
-// }
-
-// template<typename ProcType>
-// void TypeDecision<ProcType>::parseInputData(char* fileName)
-// {
-//     std::cout << fileName << std::endl;
-// }
-
-// TypeDecision::TypeDecision(char* fileName)
-// {
-//     parseInputData(fileName);
-// }
-
-// void TypeDecision::parseInputData(char* fileName)
-// {
-//     XMLError eResult;
-//     XMLDocument xmlDocument;
-
-//     eResult = xmlDocument.LoadFile(fileName); // load XML file
-//     XMLCheckResult(eResult);
-
-// //// XML parsing//////////////////////////////////////////
-//     XMLNode * xmlNode = xmlDocument.FirstChildElement(); // root tag
-//     if (xmlNode == nullptr) return XML_ERROR_FILE_READ_ERROR;
-//     // XMLError eResult;
-
-//     XMLElement * pListElement = xmlNode->FirstChildElement("processors");
-//     if (pListElement == nullptr) exit(XML_ERROR_PARSING_ELEMENT);
-
-
-//     while (pListElement != nullptr)
-//     {
-//         vector<TaskPosition> taskPos;
-//         int id, major_frame, priority, period, processorNum, BCET, WCET;
-//         eResult = pListElement->QueryIntAttribute("index", &id);
-//         XMLCheckResult(eResult);
-//         eResult = pListElement->QueryIntAttribute("maj_fr", &major_frame);
-//         XMLCheckResult(eResult);
-//         eResult = pListElement->QueryIntAttribute("prio", &priority);
-//         XMLCheckResult(eResult);
-//         eResult = pListElement->QueryIntAttribute("period", &period);
-//         XMLCheckResult(eResult); 
-//         eResult = pListElement->QueryIntAttribute("proc", &processorNum);
-//         XMLCheckResult(eResult);
-//         eResult = pListElement->QueryIntAttribute("bcet", &BCET);
-//         XMLCheckResult(eResult);
-//         eResult = pListElement->QueryIntAttribute("wcet", &WCET);
-//         XMLCheckResult(eResult);
-//         usd[id] = false;
-//         tasks[id] = new Task(id, major_frame, priority, period, processorNum, BCET, WCET);
-//         processors[processorNum] = taskPos;
-//         pListElement = pListElement->NextSiblingElement("task");
-//     }
-// }
 
 // end type of decision
 

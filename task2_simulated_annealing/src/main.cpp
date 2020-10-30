@@ -4,7 +4,7 @@
 
 
 using Law = std::unique_ptr<AbstractTDecreaseLaw>;
-using DataRepresentation = std::vector<Processor>;
+using DataRepresentation = std::unordered_map<int, Processor>;
 using DecisionType = std::unique_ptr<AbstractTypeDecision<DataRepresentation>>;
 
 int main(int argc, char** argv)

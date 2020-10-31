@@ -15,7 +15,8 @@ void fillDataMap (char* fileName, generatorParamType& generatorParams)
     file.open(fileName);
     if (not file.is_open())
     {
-        std::cerr << "Can't open the file with name " << fileName << std::endl;
+        std::cerr << "Can't open the file with name "
+                  << fileName << std::endl;
         exit(1);
     }
     file >> generatorParams["NUMBER_OF_PROC"];
@@ -35,7 +36,8 @@ void generateData (generatorParamType& generatorParams, char* fileName)
     xmlDocument.InsertEndChild(xmlNode); // bind root tag
 
     XMLElement* pElement = xmlDocument.NewElement("processors");
-    pElement->SetAttribute("count", std::stoi(generatorParams["NUMBER_OF_PROC"]));
+    pElement->SetAttribute("count", 
+                            std::stoi(generatorParams["NUMBER_OF_PROC"]));
     xmlNode->InsertEndChild(pElement);
     int numberOfJobs = std::stoi(generatorParams["NUMBER_OF_JOBS"]);
     for (int i = 0; i < numberOfJobs; i++)

@@ -11,6 +11,121 @@
 #include <unordered_map>
 
 
+// type for representation of one proceccor
+
+struct Processor : public std::unordered_map<int, int>
+{
+    int executionTime;
+    Processor(int exTime=0);
+    void push(int id, int exTime);
+    void eraise_job(int id);
+    void print() const;
+};
+
+// end type for representation of one proceccor
+
+
+using MyDataType = std::unordered_map<int, Processor>;
+
+
+
+// type of decision
+
+template<typename DataType>
+class AbstractTypeDecision
+{
+    public:
+        AbstractTypeDecision(int v=0, int sum=0);
+        AbstractTypeDecision(const AbstractTypeDecision& decision);
+        AbstractTypeDecision(AbstractTypeDecision&& decision);
+        AbstractTypeDecision& operator=(const AbstractTypeDecision& decision);
+        AbstractTypeDecision& operator=(AbstractTypeDecision&& decision);
+
+        virtual void parseInputData(char* fileName)=0;
+        virtual int targetFunc() const=0;
+        virtual int getSum() const=0;
+        virtual void moveJob(int id, int from, int to)=0;
+        virtual void updateTargetValue()=0;
+        virtual DataType& getData()=0;
+        virtual void print() const=0;
+        virtual ~AbstractTypeDecision()=default;
+    protected:
+        DataType data;
+        int targetValue;
+        int sum;
+};
+
+
+template<typename DataType>
+AbstractTypeDecision<DataType>::AbstractTypeDecision(int v, int sum) : targetValue(v), sum(sum) {}
+
+
+template<typename DataType>
+AbstractTypeDecision<DataType>::AbstractTypeDecision(const AbstractTypeDecision<DataType>& decision)
+{
+    data = decision.data;
+    targetValue = decision.targetValue;
+    sum = decision.sum;
+}
+
+
+template<typename DataType>
+AbstractTypeDecision<DataType>::AbstractTypeDecision(AbstractTypeDecision<DataType>&& decision)
+{
+    data = std::move(decision.data);
+    targetValue = decision.targetValue;
+    sum = decision.sum;
+    decision.targetValue = 0;
+    decision.sum = 0;
+}
+
+
+template<typename DataType>
+AbstractTypeDecision<DataType>& 
+AbstractTypeDecision<DataType>::operator=(const AbstractTypeDecision<DataType>& decision)
+{
+    if (this == &decision) return *this;
+    data = decision.data;
+    targetValue = decision.targetValue;
+    sum = decision.sum;
+    return *this;
+}
+
+
+template<typename DataType>
+AbstractTypeDecision<DataType>& 
+AbstractTypeDecision<DataType>::operator=(AbstractTypeDecision<DataType>&& decision)
+{
+    if (this == &decision) return *this;
+    data = std::move(decision.data);
+    targetValue = decision.targetValue;
+    sum = decision.sum;
+    decision.targetValue = 0;
+    decision.sum = 0;
+    return *this;
+}
+
+
+class TypeDecision: public AbstractTypeDecision<MyDataType>
+{
+    public:
+
+        TypeDecision(int v=0, int sum=0);
+        TypeDecision(char* fileName);
+
+        virtual void parseInputData(char* fileName) override;
+        virtual int targetFunc() const override;
+        virtual int getSum() const override;
+        virtual void moveJob(int id, int from, int to) override;
+        virtual void updateTargetValue() override;
+        virtual MyDataType& getData() override;
+        virtual void print() const override;
+};
+
+// end type of decision
+
+
+
 // temperature decrease laws
 
 class AbstractTDecreaseLaw 
@@ -69,74 +184,30 @@ class ThirdLaw : public AbstractTDecreaseLaw
 // end temperature decrease laws
 
 
-// type for representation of one proceccor
-
-struct Processor : public std::unordered_map<int, int>
-{
-    int executionTime;
-    Processor(int exTime=0);
-    void push(int id, int exTime);
-    void eraise_job(int id);
-    void print() const;
-};
-
-// end type for representation of one proceccor
-
-
-// type of decision
-
-template<typename T>
-class AbstractTypeDecision
-{
-    public:
-
-        virtual void parseInputData(char* fileName)=0;
-        virtual int targetFunc() const=0;
-        //  virtual int getTargetValue()=0;
-        virtual void moveJob(int id, int from, int to)=0;
-        virtual void updateTargetValue()=0;
-        // // virtual T* getData()=0;
-        virtual void print() const=0;
-        virtual ~AbstractTypeDecision()=default;
-
-};
-
-
-class TypeDecision: public AbstractTypeDecision<std::unordered_map<int, Processor>>
-{
-    public:
-
-        TypeDecision(int targetValue=0);
-        TypeDecision(char* fileName);
-
-        // TypeDecision(TypeDecision& decision);
-        virtual void parseInputData(char* fileName) override;
-        virtual void moveJob(int id, int from, int to) override;
-        virtual void updateTargetValue() override;
-        virtual int targetFunc() const override;
-        virtual void print() const override;
-
-    protected:
-        std::unordered_map<int, Processor> data;
-        int targetValue;
-};
-
-// end type of decision
-
 
 // Mutation operation
 
-class Mutation
+template<typename T>
+class AbstractMutation
 {
     public:
-        virtual AbstractTypeDecision* mutate(AbstractTypeDecision* decision)=0;
+
+        virtual int getIdProcessorFrom(AbstractTypeDecision<T>* decision) const=0;
+        virtual int getIdProcessorTo(AbstractTypeDecision<T>* decision) const=0;
+        virtual int getRandomJobId(AbstractTypeDecision<T>* decision, int from) const=0;
+        virtual AbstractTypeDecision<T>* mutate(AbstractTypeDecision<T>* decision)=0;
+
+        virtual ~AbstractMutation()=default;
 };
 
 
-class MyOperation: public Mutation
+class MyOperation: public AbstractMutation<MyDataType>
 {
     public:
-        virtual void mutate(AbstractTypeDecision* decision);
+        virtual int getIdProcessorFrom(AbstractTypeDecision<MyDataType>* decision) const override;
+        virtual int getIdProcessorTo(AbstractTypeDecision<MyDataType>* decision) const override;
+        virtual int getRandomJobId(AbstractTypeDecision<MyDataType>* decision, int from) const override;
+        virtual AbstractTypeDecision<MyDataType>* mutate(AbstractTypeDecision<MyDataType>* decision) override;
 };
 
 // end mutation operation

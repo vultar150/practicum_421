@@ -1,10 +1,16 @@
-CC := g++ -std=c++2a -O3
+CC := g++ -std=c++2a -O3 -g
 CFLAGS := -c -Wall
 DIR := src/
-OBJECTS_LIST := main.o classes.o tinyxml2.o
+ALL_OBJECT_LIST := main.o XDecision.o decrease.o mutation.o tinyxml2.o
 GENERATOR_LIST := generator.o genfunctions.o tinyxml2.o
-OBJECTS := $(addprefix $(DIR), $(OBJECTS_LIST))
+DECREASE := decrease.o
+XDECISION := XDecision.o tinyxml2.o
+MUTATION := mutation.o
+OBJECTS := $(addprefix $(DIR), $(ALL_OBJECT_LIST))
 GENOBJECTS := $(addprefix $(DIR), $(GENERATOR_LIST))
+DECREASE_OBJECTS := $(addprefix $(DIR), $(DECREASE))
+XDECISION_OBJECTS := $(addprefix $(DIR), $(XDECISION))
+MUTATION_OBJECTS := $(addprefix $(DIR), $(MUTATION))
 ALG := simulatedAnnealingAlg
 GEN := generate
 
@@ -12,10 +18,19 @@ GEN := generate
 all: $(ALG) $(GEN)
 
 simulatedAnnealingAlg: $(OBJECTS)
-	$(CC) $(notdir $(OBJECTS)) -o $@ 
+	$(CC) $(notdir $(OBJECTS)) -o $@
 
 generate: $(GENOBJECTS)
 	$(CC) $(notdir $(GENOBJECTS)) -o $@
+
+# decrease: $(DECREASE_OBJECTS)
+# 	$(CC) $(notdir $(DECREASE_OBJECTS)) -o $@
+
+# decision: $(XDECISION_OBJECTS)
+# 	$(CC) $(notdir $(XDECISION_OBJECTS)) -o $@
+
+# mutation: $(MUTATION_OBJECTS)
+# 	$(CC) $(notdir $(MUTATION_OBJECTS)) -o $@
 
 %.o: %.cpp
 	$(CC) $(CFLAGS) $^

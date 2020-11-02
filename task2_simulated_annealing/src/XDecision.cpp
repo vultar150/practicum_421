@@ -6,26 +6,28 @@
 
 // type for representation of one proceccor
 
-Processor::Processor(int exTime) : executionTime(exTime) {}
+Processor::Processor(int exTime) : _executionTime(exTime) {}
 
 
 void Processor::push(int id, int exTime) 
 {
     this->emplace(id, exTime);
-    executionTime += exTime;
+    _executionTime += exTime;
 }
 
 
 void Processor::eraiseJob(int id)
 {
-    executionTime -= (*this)[id];
+    _executionTime -= (*this)[id];
     this->erase(id);
 }
+
+int Processor::getExecTime() const { return _executionTime; }
 
 
 void Processor::print() const
 {
-    std::cout << "\tEXECUTION TIME = " << executionTime << std::endl;
+    std::cout << "\tEXECUTION TIME = " << _executionTime << std::endl;
     std::cout << "\tJOBS:" << std::endl;
     for (const auto& job : *this)
     {
@@ -73,10 +75,8 @@ void TypeDecision::parseInputData(char* fileName)
     eResult = pListElement->QueryIntAttribute("count", &numOfProcessors);
     XMLCheckResult(eResult);
 
-    for (int i = 0; i < numOfProcessors; i++) 
-    { 
-        data.emplace(i, Processor(0));
-    }
+    for (int i = 0; i < numOfProcessors; i++) _data.emplace(i, Processor(0));
+    int sum = 0;
 
     pListElement = xmlNode->FirstChildElement("job");
     while (pListElement != nullptr)
@@ -87,19 +87,21 @@ void TypeDecision::parseInputData(char* fileName)
         eResult = pListElement->QueryIntAttribute("execution_time", 
                                                   &executionTime);
         XMLCheckResult(eResult);
-        data[0].push(id, executionTime);
+        sum += executionTime;
+        int randp = arc4random_uniform(numOfProcessors);
+        _data[randp].push(id, executionTime);
         pListElement = pListElement->NextSiblingElement("job");
     }
-    targetValue = data[0].executionTime;
-    sum = targetValue;
+    updateTargetValue();
+    _executionTime = sum;
 }
 
 
 void TypeDecision::moveJob(int id, int from, int to)
 {
     if (from == to) return;
-    data[to].push(id, data[from][id]);
-    data[from].eraiseJob(id);
+    _data[to].push(id, _data[from][id]);
+    _data[from].eraiseJob(id);
     updateTargetValue();
 }
 
@@ -108,36 +110,37 @@ void TypeDecision::updateTargetValue()
 {
     using Tmp = const std::pair<int, Processor>;
     auto cmp = [&](Tmp& p1, Tmp& p2) {
-                    return p1.second.executionTime < p2.second.executionTime;
+                    return p1.second.getExecTime() < p2.second.getExecTime();
                 };
-    auto max = (*std::max_element(data.begin(), 
-                                  data.end(), 
-                                  cmp)).second.executionTime;
-    auto min = (*std::min_element(data.begin(), 
-                                  data.end(), 
-                                  cmp)).second.executionTime;
-    targetValue = max - min;
+    auto max = (*std::max_element(_data.begin(), 
+                                  _data.end(), 
+                                  cmp)).second.getExecTime();
+    auto min = (*std::min_element(_data.begin(), 
+                                  _data.end(), 
+                                  cmp)).second.getExecTime();
+    _targetValue = max - min;
 }
 
 
-int TypeDecision::targetFunc() const { return targetValue; }
+int TypeDecision::targetFunc() const { return _targetValue; }
 
 
-int TypeDecision::getSum() const { return sum; }
+int TypeDecision::getExecTime() const { return _executionTime; }
 
 
-std::unordered_map<int, Processor>& TypeDecision::getData() { return data; }
+std::unordered_map<int, Processor>& TypeDecision::getData() { return _data; }
 
 
 void TypeDecision::print() const
 {
-    std::cout << "TARGET VALUE = " << targetValue << std::endl;
     std::cout << "PROCESSORS:" << std::endl;
-    for (const auto& proc : data)
+    for (const auto& proc : _data)
     {
         std::cout << "\tID OF PROCESSOR = " << proc.first << std::endl; 
         proc.second.print();
     }
+    std::cout << "EXECUTION TIME (SUM) = " << _executionTime << std::endl;
+    std::cout << "TARGET VALUE = " << _targetValue << std::endl;
     std::cout << "///////////////////////////" << std::endl;
     std::cout << std::endl;
 }

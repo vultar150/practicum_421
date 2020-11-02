@@ -20,7 +20,7 @@ class AbstractTDecreaseLaw
 class BoltzmannLaw : public AbstractTDecreaseLaw 
 {
     private:
-        double T0;
+        double _T0;
 
     public:
 
@@ -35,7 +35,7 @@ class BoltzmannLaw : public AbstractTDecreaseLaw
 class CauchyLaw : public AbstractTDecreaseLaw
 {
     private:
-        double T0;
+        double _T0;
 
     public:
 
@@ -50,7 +50,7 @@ class CauchyLaw : public AbstractTDecreaseLaw
 class ThirdLaw : public AbstractTDecreaseLaw
 {
     private:
-        double T0;
+        double _T0;
 
     public:
 

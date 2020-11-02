@@ -1,5 +1,6 @@
 #include <memory>
 #include <unordered_map>
+#include <vector>
 #include "XDecision.h"
 #include "mutation.h"
 
@@ -8,14 +9,25 @@
 
 int MyOperation::getIdProcessorFrom(std::shared_ptr<AbstractTypeDecision<MyDataType>> decision) const
 {
-    int sum = decision->getSum();
-    int randomFrom = arc4random_uniform(sum);
+    // std::vector<int> positiveExecTimes;
+    // positiveExecTimes.reserve(decision->getData().size());
+    // for (const auto& proc : decision->getData())
+    // {
+    //     if (proc.second.getExecTime() > 0)
+    //         positiveExecTimes.push_back(proc.first);
+    // }
+    // int randomFrom = arc4random_uniform(positiveExecTimes.size());
+    // return positiveExecTimes[randomFrom];
+
+    int sum = decision->getExecTime();
+    int random = arc4random_uniform(sum);
     auto it = decision->getData().begin();
-    int right = (*it).second.executionTime;
-    while (randomFrom >= right)
+
+    int right = (*it).second.getExecTime();
+    while (random >= right)
     {
         it++;
-        right += (*it).second.executionTime;
+        right += (*it).second.getExecTime();
     }
     return (*it).first;
 }
@@ -23,50 +35,91 @@ int MyOperation::getIdProcessorFrom(std::shared_ptr<AbstractTypeDecision<MyDataT
 
 int MyOperation::getIdProcessorTo(std::shared_ptr<AbstractTypeDecision<MyDataType>> decision) const
 {
-    int numOfProcessors = decision->getData().size();
-    int sum = decision->getSum();
-    int randomTo = arc4random_uniform((numOfProcessors - 1) * sum);
+    // int numOfProcessors = decision->getData().size();
+    // int randomTo = arc4random_uniform(numOfProcessors);
+    // while (randomTo == from) randomTo = arc4random_uniform(numOfProcessors);
+    // return randomTo;
+
+    int size = decision->getData().size();
+    int sum = decision->getExecTime();
+    int random = arc4random_uniform((size - 1) * sum);
     auto it = decision->getData().begin();
-    int right = sum - (*it).second.executionTime;
-    while (randomTo >= right)
+
+    if (size <= 1) return (*it).first;
+
+    int right = sum - (*it).second.getExecTime();
+    while (random >= right)
     {
         it++;
-        right += sum - (*it).second.executionTime;
+        right += sum - (*it).second.getExecTime();
     }
     return (*it).first;
 }
 
 
+// template<typename TCont>
+// int MyOperation::getRandomIdNeg(const TCont& cont, int execTime) const
+// {
+//     // int sizeOfProcessor = decision->getData()[from].size();
+//     // auto itJob = decision->getData()[from].begin();
+//     // if (sizeOfProcessor <= 1) return (*itJob).first;
+//     // int randid = arc4random_uniform(sizeOfProcessor);
+//     // auto it = std::next(itJob, randid);
+//     // return (*it).first;
+
+//     int size = cont.size();
+//     // int sum = decision->getData()[from].getExecTime();
+//     int random = arc4random_uniform((size - 1) * execTime);
+//     auto it = cont.begin();
+
+//     if (size <= 1) return (*it).first;
+
+//     int right = execTime - (*it).second.getExecTime();
+//     while(random >= right)
+//     {
+//         it++;
+//         right += execTime - (*it).second.getExecTime();
+//     }
+//     return (*it).first;
+// }
+
 int MyOperation::getRandomJobId(std::shared_ptr<AbstractTypeDecision<MyDataType>> decision, 
                                 int from) const
 {
-    int sizeOfProcessor = decision->getData()[from].size();
-    int execTimeOfProc = decision->getData()[from].executionTime;
-    auto itJob = decision->getData()[from].begin();
+    // int sizeOfProcessor = decision->getData()[from].size();
+    // auto itJob = decision->getData()[from].begin();
+    // if (sizeOfProcessor <= 1) return (*itJob).first;
+    // int randid = arc4random_uniform(sizeOfProcessor);
+    // auto it = std::next(itJob, randid);
+    // return (*it).first;
 
-    if (sizeOfProcessor <= 1) return (*itJob).first;
+    int size = decision->getData()[from].size();
+    int sum = decision->getData()[from].getExecTime();
+    int random = arc4random_uniform((size - 1) * sum);
+    auto it = decision->getData()[from].begin();
 
-    int randJob = arc4random_uniform((sizeOfProcessor - 1) * execTimeOfProc);
-    int right = execTimeOfProc - (*itJob).second;
-    while(randJob >= right)
+    if (size <= 1) return (*it).first;
+
+    int right = sum - (*it).second;
+    while(random >= right)
     {
-        itJob++;
-        right += execTimeOfProc - (*itJob).second;
+        it++;
+        right += sum - (*it).second;
     }
-    return (*itJob).first;
+    return (*it).first;
 }
 
 
 std::shared_ptr<AbstractTypeDecision<MyDataType>>
 MyOperation::mutate(std::shared_ptr<AbstractTypeDecision<MyDataType>> decision)
 {
-    int numOfProcessors = decision->getData().size();
+    int size = decision->getData().size();
 
-    if (numOfProcessors <= 1) return decision;
+    if (size <= 1) return decision;
 
     int from = this->getIdProcessorFrom(decision);
     int to = this->getIdProcessorTo(decision);
-    if (from == to) return decision;
+    while (to == from) to = this->getIdProcessorTo(decision);
     int id = this->getRandomJobId(decision, from);
 
     std::shared_ptr<AbstractTypeDecision<MyDataType>> newDecision(new TypeDecision);

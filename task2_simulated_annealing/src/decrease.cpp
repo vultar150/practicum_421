@@ -6,28 +6,28 @@
 // Cauchy Law and Third no named law.
 
 
-BoltzmannLaw::BoltzmannLaw(double T0) : T0(T0) {}
+BoltzmannLaw::BoltzmannLaw(double T0) : _T0(T0) {}
 
 
-CauchyLaw::CauchyLaw(double T0) : T0(T0) {}
+CauchyLaw::CauchyLaw(double T0) : _T0(T0) {}
 
 
-ThirdLaw::ThirdLaw(double T0) : T0(T0) {}
+ThirdLaw::ThirdLaw(double T0) : _T0(T0) {}
 
 
 double BoltzmannLaw::getDecreaseTemperature(int it) const
 {
-    return T0 / std::log1p(it);
+    return _T0 / std::log1p(it);
 }
 
 
 double CauchyLaw::getDecreaseTemperature(int it) const
 {
-    return T0 / (1 + it);
+    return _T0 / (1 + it);
 }
 
 
 double ThirdLaw::getDecreaseTemperature(int it) const
 {
-    return T0 * std::log1p(it) / (1 + it);
+    return _T0 * std::log1p(it) / (1 + it);
 }

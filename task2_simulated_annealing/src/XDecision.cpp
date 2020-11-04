@@ -1,3 +1,5 @@
+#include</Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include/c++/v1/math.h>
+#include</Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include/c++/v1/__cxx_version>
 #include <iostream>
 #include <unordered_map>
 #include "tinyxml2.h"
@@ -6,28 +8,44 @@
 
 // type for representation of one proceccor
 
-Processor::Processor(int exTime) : _executionTime(exTime) {}
+Processor::Processor(int exTime) : _executionTime(exTime), _idMaxExecTime(0) {}
 
 
 void Processor::push(int id, int exTime) 
 {
+    if (empty()) _idMaxExecTime = id;
     this->emplace(id, exTime);
     _executionTime += exTime;
+    if ((*this)[_idMaxExecTime] < exTime) _idMaxExecTime = id;
 }
 
 
 void Processor::eraiseJob(int id)
 {
+    if (empty()) return;
     _executionTime -= (*this)[id];
-    this->erase(id);
+    erase(id);
+    using Tmp = const std::pair<int, int>;
+    auto cmp = [&](Tmp& p1, Tmp& p2) { return p1.second < p2.second; };
+    if (not empty() and id == _idMaxExecTime)
+        _idMaxExecTime = (*std::max_element(begin(), end(), cmp)).first;
 }
 
-int Processor::getExecTime() const { return _executionTime; }
+
+// int Processor::getExecTime() const { return _executionTime; }
+
+
+// int Processor::getIdMaxExecTime() const { return _idMaxExecTime; }
+
+
+Processor::operator int() const { return _executionTime; }
 
 
 void Processor::print() const
 {
     std::cout << "\tEXECUTION TIME = " << _executionTime << std::endl;
+    std::cout << "\tID MAX EXEC TIME JOB = " << _idMaxExecTime << std::endl;
+    std::cout << "\tIS EMPTY? = " << (empty() ? "YES" : "NO") << std::endl;
     std::cout << "\tJOBS:" << std::endl;
     for (const auto& job : *this)
     {
@@ -43,9 +61,7 @@ void Processor::print() const
 // type of decision
 
 TypeDecision::TypeDecision(int v, 
-                           int sum) : AbstractTypeDecision<MyDataType>(v, sum) 
-{
-}
+                           int sum) : _targetValue(v), _executionTime(sum) {} 
 
 
 TypeDecision::TypeDecision(char* fileName)
@@ -53,6 +69,32 @@ TypeDecision::TypeDecision(char* fileName)
     this->parseInputData(fileName);
 }
 
+
+AbstractTypeDecision<MyDataType>&
+TypeDecision::operator=(AbstractTypeDecision<MyDataType>& decision)
+{
+    if (this == &decision) return *this;
+    _data = decision.getData();
+    _targetValue = decision.targetFunc();
+    _executionTime = decision.getExecTime();
+    _idMaxProc = decision.getIdMaxProc();
+    _idMinProc = decision.getIdMinProc();
+    return *this;
+}
+
+
+AbstractTypeDecision<MyDataType>& 
+TypeDecision::operator=(AbstractTypeDecision<MyDataType>&& decision)
+{
+    if (this == &decision) return *this;
+    _data = std::move(decision.getData());
+    _targetValue = decision.targetFunc();
+    _executionTime = decision.getExecTime();
+    _idMaxProc = decision.getIdMaxProc();
+    _idMinProc = decision.getIdMinProc();
+    decision.setToZero();
+    return *this;
+}
 
 // XML parser for input data
 
@@ -110,25 +152,38 @@ void TypeDecision::updateTargetValue()
 {
     using Tmp = const std::pair<int, Processor>;
     auto cmp = [&](Tmp& p1, Tmp& p2) {
-                    return p1.second.getExecTime() < p2.second.getExecTime();
+                    return p1.second._executionTime < p2.second._executionTime;
                 };
-    auto max = (*std::max_element(_data.begin(), 
-                                  _data.end(), 
-                                  cmp)).second.getExecTime();
-    auto min = (*std::min_element(_data.begin(), 
-                                  _data.end(), 
-                                  cmp)).second.getExecTime();
-    _targetValue = max - min;
+    auto max = std::max_element(_data.begin(), _data.end(), cmp);
+    auto min = std::min_element(_data.begin(), _data.end(), cmp);
+    _idMaxProc = (*max).first;
+    _idMinProc = (*min).first;
+    _targetValue = (*max).second._executionTime - (*min).second._executionTime;
+}
+
+
+void TypeDecision::setToZero()
+{
+    _targetValue = 0;
+    _executionTime = 0;
+    _idMaxProc = 0;
+    _idMinProc = 0;
 }
 
 
 int TypeDecision::targetFunc() const { return _targetValue; }
 
 
+int TypeDecision::getIdMaxProc() const { return _idMaxProc; }
+
+
+int TypeDecision::getIdMinProc() const { return _idMinProc; }
+
+
 int TypeDecision::getExecTime() const { return _executionTime; }
 
 
-std::unordered_map<int, Processor>& TypeDecision::getData() { return _data; }
+MyDataType& TypeDecision::getData() { return _data; }
 
 
 void TypeDecision::print() const
@@ -139,6 +194,8 @@ void TypeDecision::print() const
         std::cout << "\tID OF PROCESSOR = " << proc.first << std::endl; 
         proc.second.print();
     }
+    std::cout << "ID MAX PROC = " << _idMaxProc << std::endl;
+    std::cout << "ID MIN PROC = " << _idMinProc << std::endl;
     std::cout << "EXECUTION TIME (SUM) = " << _executionTime << std::endl;
     std::cout << "TARGET VALUE = " << _targetValue << std::endl;
     std::cout << "///////////////////////////" << std::endl;

@@ -10,7 +10,9 @@ class AbstractTDecreaseLaw
 {
     public:
 
+        virtual AbstractTDecreaseLaw& operator=(AbstractTDecreaseLaw& obj)=0;
         virtual double getDecreaseTemperature(int it) const=0;
+        virtual double getT0() const=0;
         virtual ~AbstractTDecreaseLaw() = default;
 };
 
@@ -26,7 +28,9 @@ class BoltzmannLaw : public AbstractTDecreaseLaw
 
         BoltzmannLaw(double T0=1.);
 
+        virtual AbstractTDecreaseLaw& operator=(AbstractTDecreaseLaw& obj) override;
         virtual double getDecreaseTemperature(int it) const override;
+        virtual double getT0() const override;
 };
 
 
@@ -41,7 +45,9 @@ class CauchyLaw : public AbstractTDecreaseLaw
 
         CauchyLaw(double T0=1.);
 
+        virtual AbstractTDecreaseLaw& operator=(AbstractTDecreaseLaw& obj) override;
         virtual double getDecreaseTemperature(int it) const override;
+        virtual double getT0() const override;
 };
 
 
@@ -56,7 +62,9 @@ class ThirdLaw : public AbstractTDecreaseLaw
 
         ThirdLaw(double T0=1.);
 
+        virtual AbstractTDecreaseLaw& operator=(AbstractTDecreaseLaw& obj) override;
         virtual double getDecreaseTemperature(int it) const override;
+        virtual double getT0() const override;
 };
 
 #endif // DECREASE_H

@@ -1,7 +1,7 @@
-CC := g++ -std=c++2a -O3 -g
+CC := clang++ -O3  -std=c++2a -fopenmp=libomp -L/usr/local/Cellar/llvm/11.0.0/lib/
 CFLAGS := -c -Wall
 DIR := src/
-ALL_OBJECT_LIST := main.o XDecision.o decrease.o mutation.o tinyxml2.o
+ALL_OBJECT_LIST := main.o parameters.o XDecision.o decrease.o mutation.o tinyxml2.o
 GENERATOR_LIST := generator.o genfunctions.o tinyxml2.o
 DECREASE := decrease.o
 XDECISION := XDecision.o tinyxml2.o

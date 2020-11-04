@@ -1,115 +1,123 @@
+#include</Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include/c++/v1/math.h>
+#include</Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include/c++/v1/__cxx_version>
+
 #include <iostream>
 #include <memory>
 #include <unordered_map>
+#include <vector>
+#include <fstream>
+#include <chrono>
+#include <omp.h>
 
+#include "parameters.h"
 #include "XDecision.h"
 #include "decrease.h"
 #include "mutation.h"
-// #include "classes.h"
+#include "sequential.h"
 
 
-using Law = std::unique_ptr<AbstractTDecreaseLaw>;
-using PointerADecType = std::shared_ptr<AbstractTypeDecision<MyDataType>>;
-using AbstrMutationType = std::unique_ptr<AbstractMutation<MyDataType>>;
+using SPtrAbstractData = std::shared_ptr<AbstractTypeDecision<MyDataType>>;
+
 
 int main(int argc, char** argv)
 {
-    // Law tempLaw1 = std::make_unique<BoltzmannLaw>(10);
-    // Law tempLaw2 = std::make_unique<CauchyLaw>(10);
-    // Law tempLaw3 = std::make_unique<ThirdLaw>(10);
+    std::unordered_map<std::string, int> params;
+    setParameters(params);
 
-    // std::cout << tempLaw1->getDecreaseTemperature(3) << std::endl;
-    // std::cout << tempLaw2->getDecreaseTemperature(3) << std::endl;
-    // std::cout << tempLaw3->getDecreaseTemperature(3) << std::endl;
-    // AbstractTypeDecision<MyDataType>* tmp = new TypeDecision(argv[1]);
-    //PointerADecType decision = std::make_unique<TypeDecision>(argv[1]);
-    // tmp = decision;
-    // TypeDecision* dec = dynamic_cast<TypeDecision*>(decision);
-    // AbstractTypeDecision<MyDataType>* dec = new TypeDecision(argv[1]);
-    // TypeDecision* dec = new TypeDecision(4);
-    // TypeDecision dec2(argv[1]);
-    // AbstractTypeDecision<MyDataType>* dec2 = nullptr;
-    // *dec2 = *tmp;
+    SPtrAbstractData bestSolution(new TypeDecision(argv[1]));
+    std::vector<SPtrAbstractData> records(params["NUM_OF_THREADS"], bestSolution);
 
+    int idBestRecord = 0, it = 0;
 
-    // AbstrMutationType tmp(new MyOperation());
-    // PointerADecType p1(new TypeDecision(argv[1]));
-    // PointerADecType p2(std::make_shared<TypeDecision>());
-    
-    // *p2 = *p1;
+    omp_set_num_threads(params["NUM_OF_THREADS"]);
+    auto start = std::chrono::steady_clock::now();
 
-    // AbstractTypeDecision<MyDataType>* tmp = new TypeDecision(argv[1]);
-    // AbstractTypeDecision<MyDataType>* tmp2;
+    while(it < params["NUM_OF_IT_OUTER_MOST_LOOP_WITHOUT_CHANGE"])
+    {
+        // std::cout << std::endl;
+        // std::cout << std::endl;
+        // std::cout << "############ NEXT IT OF MULTITHREAD ##################" << std::endl;
+        // std::cout << "IT WITHOUT CHANGE = " << it << std::endl;
+        #pragma omp parallel shared(records, bestSolution, params)
+        {
+            // #pragma omp critical
+            // {
+            //     bestSolution->print();
+            // }
+            // std::cout << "TUT!!!!" << std::endl << std::endl << std::endl;
+            SequentialAlg<TypeDecision, MyOperation,
+                          CauchyLaw, MyDataType> algorithm(bestSolution, params);
+            #pragma omp critical
+            {
+                algorithm.print();
+            }
+            // std::cout << "NUM THREADS = " << omp_get_num_threads() << std::endl;
+            int threadNum = omp_get_thread_num();
+            records[threadNum] = algorithm.startMainCycle();
+            // #pragma omp critical
+            // {
+            //     std::cout << "//////////////////////////////####!!!!!!!!!!!!" << std::endl;
+            //     std::cout << "THREAD = " << threadNum << std::endl;
+            //     std::cout << "TARGET VALUE = " << records[threadNum]->targetFunc() << std::endl;
+            //     std::cout << "EXECUTION TIME (SUM) = " << records[threadNum]->getExecTime() << std::endl;
+            //     std::cout << "ID MAX PROC = " << records[threadNum]->getIdMaxProc() << std::endl;
+            //     std::cout << "ID MIN PROC = " << records[threadNum]->getIdMinProc() << std::endl;
+            //     std::cout << "//////////////////////////////####!!!!!!!!!!!!" << std::endl;
+            // }
+            #pragma omp barrier
+        }
+        int minOrMax = records[idBestRecord=0]->targetFunc();
+        bool criterionIsMin = params["IS_MIN_CRITERION"];
+        for (int i = 1; i < params["NUM_OF_THREADS"]; i++)
+        {
+            if ((criterionIsMin     and minOrMax > records[i]->targetFunc()) or 
+                (not criterionIsMin and minOrMax < records[i]->targetFunc()))
+            {
+                idBestRecord = i;
+                minOrMax = records[i]->targetFunc();
+            }
+        }
+        if (bestSolution->targetFunc() == records[idBestRecord]->targetFunc())
+            it++;
+        else it = 0;
+        bestSolution = records[idBestRecord];
+        // std::cout << "BEST SOLUTION: " << std::endl;
+        // std::cout << "//////////////////////////////" << std::endl;
+        // std::cout << "//////////////////////////////" << std::endl;
+        // std::cout << "//////////////////////////////" << std::endl;
+        // // std::cout << "THREAD = " << threadNum << std::endl;
+        // std::cout << "TARGET VALUE = " << bestSolution->targetFunc() << std::endl;
+        // std::cout << "EXECUTION TIME (SUM) = " << bestSolution->getExecTime() << std::endl;
+        // std::cout << "ID MAX PROC = " << bestSolution->getIdMaxProc() << std::endl;
+        // std::cout << "ID MIN PROC = " << bestSolution->getIdMinProc() << std::endl;
+        // std::cout << "//////////////////////////////" << std::endl;
+        // std::cout << "//////////////////////////////" << std::endl;
+        // std::cout << "//////////////////////////////" << std::endl;
+        // std::cout << "//////////////////////////////" << std::endl;
 
+        // std::cout << "############ END IT OF MULTITHREAD ##################" << std::endl;
+        // std::cout << std::endl;
+        // std::cout << std::endl;
+    }
 
-    // *tmp2 = *tmp;
-    // tmp->print();
-    //PointerADecType decision2 = std::make_unique<TypeDecision>(5);
-    // *decision2 = std::move(*decision);
-    //*decision2 = *decision;
-    // std::unique_ptr<TypeDecision> decision2 = std::make_unique<TypeDecision>(TypeDecision());
-    //*decision2 = *decision;
-
-
-
-    PointerADecType tmp(new TypeDecision(argv[1]));
-    PointerADecType tmp2(new TypeDecision());
-
-    AbstrMutationType mutation = std::make_unique<MyOperation>();
-
-    tmp->print();
-
-    tmp2 = mutation->mutate(tmp);
-    tmp2->print();
-
-    tmp2 = mutation->mutate(tmp2);
-    tmp2->print();
-
-    tmp2 = mutation->mutate(tmp2);
-    tmp2->print();
-
-    tmp2 = mutation->mutate(tmp2);
-    tmp2->print();
-
-    tmp2 = mutation->mutate(tmp2);
-    tmp2->print();
-
-    // tmp2 = mutation->mutate(tmp2);
-    // tmp2->print();
-    // int k = 0;
-    // while (k < 100000)
-    // {
-    //     tmp2 = mutation->mutate(tmp2);
-    //     k++;
-    // }
-    //tmp2->print();
-
-    // tmp2->print();
-
-
-    // tmp2 = mutation->mutate(tmp2);
-    // tmp2->print();
-    // tmp2 = mutation->mutate(tmp2);
-    // tmp2 = mutation->mutate(tmp2);
-    // tmp2 = mutation->mutate(tmp2);
-    // tmp2->print();
-    //tmp->print();
-    // decision->print();
-    // decision->moveJob(3, 0, 1);
-
-    // AbstractTypeDecision<MyDataType>* tmp2 = mutation->mutate(tmp);
-    // std::cout << "!!!!!!!!!!!!!!!!!!!!!!! TMP:" << std::endl;
-    // dec.print();
-
-
-    //std::cout << "!!!!!!!!!!!!!!!!!!!!!!! DEC2:" << std::endl;
-
-    // tmp2->print();
-
-    // dec2.print();
-    // decision2->print();
-    // decision->moveJob(3, 0, 1);
-    // decision->print();
-    // decision->getData()[0].print();
+    auto end = std::chrono::steady_clock::now();
+    auto timeDiff = end - start;
+    // std::shared_ptr<AbstractTypeDecision<MyDataType>> record = algorithm.startMainCycle();
+    std::ofstream log;
+    log.open("log.txt", std::ios::app);
+    if (log.is_open())
+    {
+        log << "DATA FILE = " << argv[1] << std::endl;
+        log << "NUM OF THREADS = " << params["NUM_OF_THREADS"] << std::endl;
+        log << "\tINITIAL TEMPERATURE = " << params["INITIAL_TEMPERATURE"] << std::endl;
+        log << "\tNUM OF IT OUTER MOST LOOP WITHOUT CHANGE = " << params["NUM_OF_IT_OUTER_MOST_LOOP_WITHOUT_CHANGE"] << std::endl;
+        log << "\tNUM OF IT INNER MOST LOOP WITHOUT CHANGE = " << params["NUM_OF_IT_INNER_MOST_LOOP_WITHOUT_CHANGE"] << std::endl;
+        log << "\tNUM OF IT WITHOUT CHANGE TEMPERATUE = " << params["NUM_OF_IT_WITHOUT_CHANGE_TEMPERATUE"] << std::endl;
+        log << "\t\tTARGET VALUE = " << bestSolution->targetFunc() << std::endl;
+        log << "\t\tEXECUTION TIME (SUM) = " << bestSolution->getExecTime() << std::endl;
+        log << "\t\t" << std::chrono::duration <double, std::milli> (timeDiff).count() << " ms" << std::endl;
+    }
+    log.close();
+    // record->print();
     return 0;
 }

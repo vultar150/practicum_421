@@ -9,23 +9,44 @@ class AbstractMutation
 {
     public:
 
-        virtual int getIdProcessorFrom(std::shared_ptr<AbstractTypeDecision<T>> decision) const=0;
-        virtual int getIdProcessorTo(std::shared_ptr<AbstractTypeDecision<T>> decision) const=0;
-        virtual int getRandomJobId(std::shared_ptr<AbstractTypeDecision<T>> decision, int from) const=0;
-        virtual std::shared_ptr<AbstractTypeDecision<T>> mutate(std::shared_ptr<AbstractTypeDecision<T>> decision)=0;
-
+        virtual std::shared_ptr<AbstractTypeDecision<T>> 
+        mutate(std::shared_ptr<AbstractTypeDecision<T>> decision)=0;
+        
+        virtual AbstractMutation<T>& operator=(AbstractMutation<T>& mut)=0;
+        virtual bool isMin() const=0;
         virtual ~AbstractMutation()=default;
 };
 
 
 class MyOperation: public AbstractMutation<MyDataType>
 {
+    private:
+        bool _isMin;
+
     public:
-        virtual int getIdProcessorFrom(std::shared_ptr<AbstractTypeDecision<MyDataType>> decision) const override;
-        virtual int getIdProcessorTo(std::shared_ptr<AbstractTypeDecision<MyDataType>> decision) const override;
-        virtual int getRandomJobId(std::shared_ptr<AbstractTypeDecision<MyDataType>> decision, int from) const override;
-        virtual std::shared_ptr<AbstractTypeDecision<MyDataType>> mutate(std::shared_ptr<AbstractTypeDecision<MyDataType>> decision) override;
+        MyOperation(bool isMin=true);
+
+        virtual AbstractMutation<MyDataType>& 
+        operator=(AbstractMutation<MyDataType>& mut) override;
+
+        virtual bool isMin() const override;
+
+        virtual std::shared_ptr<AbstractTypeDecision<MyDataType>> 
+        mutate(std::shared_ptr<AbstractTypeDecision<MyDataType>> decision) override;
+
+        std::shared_ptr<AbstractTypeDecision<MyDataType>>
+        minCriterion(std::shared_ptr<AbstractTypeDecision<MyDataType>> decision);
+
+        std::shared_ptr<AbstractTypeDecision<MyDataType>>
+        maxCriterion(std::shared_ptr<AbstractTypeDecision<MyDataType>> decision);
+
+        template<typename TCont>
+        int getRandomIdPositive(TCont& cont, int execTime);
+
+        template<typename TCont>
+        int getRandomIdNegative(TCont& cont, int execTime, bool shouldNotBeEmpty=false);
 };
+
 
 // end mutation operation
 

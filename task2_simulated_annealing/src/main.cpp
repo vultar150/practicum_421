@@ -32,7 +32,7 @@ int main(int argc, char** argv)
         #pragma omp parallel shared(records, bestSolution, params)
         {
             SequentialAlg<TypeDecision, MyOperation,
-                          ThirdLaw, MyDataType> algorithm(bestSolution, params);
+                          BoltzmannLaw, MyDataType> algorithm(bestSolution, params);
             #pragma omp critical
             {
                 algorithm.print();
@@ -60,7 +60,7 @@ int main(int argc, char** argv)
 
     auto end = std::chrono::steady_clock::now();
     auto timeDiff = end - start;
-    log(argv[1], bestSolution, params, timeDiff, "ThirdLaw");
+    log(argv[1], bestSolution, params, timeDiff, "BoltzmannLaw");
     // bestSolution->print();
     return 0;
 }

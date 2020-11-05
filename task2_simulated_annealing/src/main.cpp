@@ -32,13 +32,10 @@ int main(int argc, char** argv)
         #pragma omp parallel shared(records, bestSolution, params)
         {
             SequentialAlg<TypeDecision, MyOperation,
-                          BoltzmannLaw, MyDataType> algorithm(bestSolution, params);
-            #pragma omp critical
-            {
-                algorithm.print();
-            }
-            int threadNum = omp_get_thread_num();
-            records[threadNum] = algorithm.startMainCycle();
+                          CauchyLaw, MyDataType> algorithm(bestSolution, params);
+            #pragma omp critical 
+            { algorithm.print(); }
+            records[omp_get_thread_num()] = algorithm.startMainCycle();
             #pragma omp barrier
         }
         int minOrMax = records[idBestRecord=0]->targetFunc();
@@ -60,7 +57,7 @@ int main(int argc, char** argv)
 
     auto end = std::chrono::steady_clock::now();
     auto timeDiff = end - start;
-    log(argv[1], bestSolution, params, timeDiff, "BoltzmannLaw");
+    log(argv[1], bestSolution, params, timeDiff, "CauchyLaw");
     // bestSolution->print();
     return 0;
 }

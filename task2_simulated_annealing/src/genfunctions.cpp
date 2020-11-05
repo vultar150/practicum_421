@@ -1,10 +1,9 @@
-#include</Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include/c++/v1/math.h>
-#include</Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include/c++/v1/__cxx_version>
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <unordered_map>
 
+#include "tinyxml2.h" // additional library (XML Parser)
 #include "genfunctions.h"
 
 

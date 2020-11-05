@@ -23,15 +23,6 @@ simulatedAnnealingAlg: $(OBJECTS)
 generate: $(GENOBJECTS)
 	$(CC) $(notdir $(GENOBJECTS)) -o $@
 
-# decrease: $(DECREASE_OBJECTS)
-# 	$(CC) $(notdir $(DECREASE_OBJECTS)) -o $@
-
-# decision: $(XDECISION_OBJECTS)
-# 	$(CC) $(notdir $(XDECISION_OBJECTS)) -o $@
-
-# mutation: $(MUTATION_OBJECTS)
-# 	$(CC) $(notdir $(MUTATION_OBJECTS)) -o $@
-
 %.o: %.cpp
 	$(CC) $(CFLAGS) $^
 

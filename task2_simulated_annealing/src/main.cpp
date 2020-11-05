@@ -60,7 +60,7 @@ int main(int argc, char** argv)
 
     auto end = std::chrono::steady_clock::now();
     auto timeDiff = end - start;
-    log(argv[1], bestSolution, params, timeDiff);
+    log(argv[1], bestSolution, params, timeDiff, "ThirdLaw");
     // bestSolution->print();
     return 0;
 }

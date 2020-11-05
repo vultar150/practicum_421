@@ -55,6 +55,7 @@ class SequentialAlg
                 it++;
                 itT = 1;
             }
+            std::cout << "FINAL TEMPERATURE = " << _T << std::endl;
             return _record;
         }
 

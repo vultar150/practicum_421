@@ -1,5 +1,4 @@
-#include</Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include/c++/v1/math.h>
-#include</Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include/c++/v1/__cxx_version>
+#include <cmath>
 
 #include <memory>
 #include <unordered_map>
@@ -30,7 +29,7 @@ bool MyOperation::isMin() const { return _isMin; }
 
 
 template<typename TCont>
-int MyOperation::getRandomIdPositive(TCont& cont, int execTime)
+int MyOperation::getRandomIdPositive(TCont& cont, uint64_t execTime)
 {
     int random = arc4random_uniform(execTime);
     auto it = cont.begin();
@@ -46,7 +45,7 @@ int MyOperation::getRandomIdPositive(TCont& cont, int execTime)
 
 
 template<typename TCont>
-int MyOperation::getRandomIdNegative(TCont& cont, int execTime, bool shouldNotBeEmpty)
+int MyOperation::getRandomIdNegative(TCont& cont, uint64_t execTime, bool shouldNotBeEmpty)
 {
     int size = cont.size();
     auto it = cont.begin();
@@ -63,15 +62,15 @@ int MyOperation::getRandomIdNegative(TCont& cont, int execTime, bool shouldNotBe
         size = positive.size();
         it2 = positive.begin();
     }
-    int random = arc4random_uniform((size - 1) * execTime);
+    uint64_t random = arc4random_uniform((size - 1) * execTime);
 
     if (size <= 1) return shouldNotBeEmpty ? (*it2).first : (*it).first;
 
-    int right = shouldNotBeEmpty ? (execTime - (*it2).second) : (execTime - (*it).second);
+    uint64_t right = shouldNotBeEmpty ? (execTime - (*it2).second) : (execTime - (*it).second);
     while(random >= right)
     {
         if (shouldNotBeEmpty) it2++; 
-        else          it++;
+        else   it++;
         right += shouldNotBeEmpty ? (execTime - (*it2).second) : (execTime - (*it).second);
     }
     return shouldNotBeEmpty ? (*it2).first : (*it).first;
@@ -81,40 +80,38 @@ int MyOperation::getRandomIdNegative(TCont& cont, int execTime, bool shouldNotBe
 std::shared_ptr<AbstractTypeDecision<MyDataType>>
 MyOperation::minCriterion(std::shared_ptr<AbstractTypeDecision<MyDataType>> decision)
 {
-    int from, to, id;
-    int idMaxProc = decision->getIdMaxProc();
+    int idMaxProc     = decision->getIdMaxProc();
+    int idMinExecTime = decision->getData()[idMaxProc]._idMinExecTime;
     int idMaxExecTime = decision->getData()[idMaxProc]._idMaxExecTime;
-    int mExTJob = decision->getData()[idMaxProc][idMaxExecTime];
-    int idMinProc = decision->getIdMinProc();
-    int idMaxExecTimeOnMin, mExTJobM;
+    int mExTJob       = decision->getData()[idMaxProc][idMinExecTime];
+    int maxExTJob     = decision->getData()[idMaxProc][idMaxExecTime];
+    int idMinProc     = decision->getIdMinProc();
+
+    int  idMaxExecTimeOnMin, mExTJobM;
     bool isEmpty = decision->getData()[idMinProc].empty();
     std::shared_ptr<AbstractTypeDecision<MyDataType>> newDecision(new TypeDecision);
+
     if (not isEmpty)
     {
         idMaxExecTimeOnMin = decision->getData()[idMinProc]._idMaxExecTime;
         mExTJobM = decision->getData()[idMinProc][idMaxExecTimeOnMin];
     }
     int target = decision->targetFunc();
-    if (mExTJob < target)
-    {
-        from = idMaxProc;
-        to = decision->getIdMinProc();
-        id = idMaxExecTime;
-        *newDecision = *decision;
-        newDecision->moveJob(id, from, to);
-        return newDecision;
-
-    }
-    else if (not isEmpty and (mExTJobM < mExTJob) and (mExTJob < target + mExTJobM))
+    int from = idMaxProc, to = idMinProc, id;
+    
+    if      (maxExTJob < target) { id = idMaxExecTime; }
+    else if (mExTJob   < target) { id = idMinExecTime; }
+    else if (not isEmpty and 
+             (mExTJobM < maxExTJob) and (maxExTJob < target + mExTJobM))
     {
         *newDecision = *decision;
-        newDecision->moveJob(idMaxExecTime, idMaxProc, decision->getIdMinProc());
-        newDecision->moveJob(idMaxExecTimeOnMin, decision->getIdMinProc(), idMaxProc);
+        newDecision->moveJob(idMaxExecTime, from, to);
+        newDecision->moveJob(idMaxExecTimeOnMin, to, from);
         return newDecision;
     }
     else
     {
-        int execTime = decision->getExecTime();
+        uint64_t execTime = decision->getExecTime();
         from = getRandomIdPositive(decision->getData(), execTime);
         to = getRandomIdNegative(decision->getData(), execTime);
         if (to == from) return decision;

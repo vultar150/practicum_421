@@ -41,10 +41,10 @@ class MyOperation: public AbstractMutation<MyDataType>
         maxCriterion(std::shared_ptr<AbstractTypeDecision<MyDataType>> decision);
 
         template<typename TCont>
-        int getRandomIdPositive(TCont& cont, int execTime);
+        int getRandomIdPositive(TCont& cont, uint64_t execTime);
 
         template<typename TCont>
-        int getRandomIdNegative(TCont& cont, int execTime, bool shouldNotBeEmpty=false);
+        int getRandomIdNegative(TCont& cont, uint64_t execTime, bool shouldNotBeEmpty=false);
 };
 
 

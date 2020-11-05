@@ -1,5 +1,3 @@
-#include</Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include/c++/v1/math.h>
-#include</Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include/c++/v1/__cxx_version>
 #include <iostream>
 #include <string>
 #include <unordered_map>
@@ -24,7 +22,7 @@ int main (int argc, char** argv)
                                            {"NUMBER_OF_JOBS", "0"},
                                            {"LEFT_BOUND", "0"},
                                            {"RIGHT_BOUND", "0"} };
-    fillDataMap (argv[1], generatorParams);  // read file with parametrs
+    fillDataMap (argv[1], generatorParams);  // read file with system
     generateData (generatorParams, argv[1]); // generate 
     return 0;
 }

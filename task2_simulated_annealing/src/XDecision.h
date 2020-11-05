@@ -13,14 +13,15 @@
 struct Processor : public std::unordered_map<int, int>
 {
     public:
-        Processor(int exTime=0);
-        void push(int id, int exTime);
+        Processor(uint64_t exTime=0);
+        void push(int id, uint64_t exTime);
         void eraiseJob(int id);
-        operator int() const;
+        operator uint64_t() const;
         void print() const;
 
-        int _executionTime;
+        uint64_t _executionTime;
         int _idMaxExecTime;
+        int _idMinExecTime;
 };
 
 // end some type for representation of one proceccor
@@ -42,10 +43,10 @@ class AbstractTypeDecision
         virtual AbstractTypeDecision& operator=(AbstractTypeDecision& decision)=0;
         virtual AbstractTypeDecision& operator=(AbstractTypeDecision&& decision)=0;
 
-        virtual int targetFunc() const=0;
+        virtual uint64_t targetFunc() const=0;
         virtual int getIdMaxProc() const=0;
         virtual int getIdMinProc() const=0;
-        virtual int getExecTime() const=0;
+        virtual uint64_t getExecTime() const=0;
         virtual void moveJob(int id, int from, int to)=0;
         virtual void setToZero()=0;
         virtual DataType& getData()=0;
@@ -60,24 +61,24 @@ class TypeDecision: public AbstractTypeDecision<MyDataType>
 {
     private:
         MyDataType _data;
-        int _targetValue;
-        int _executionTime;
+        uint64_t _targetValue;
+        uint64_t _executionTime;
         int _idMaxProc;
         int _idMinProc;
 
     public:
 
-        TypeDecision(int v=0, int sum=0);
+        TypeDecision(uint64_t v=0, uint64_t sum=0);
         TypeDecision(char* fileName);
 
         virtual AbstractTypeDecision& operator=(AbstractTypeDecision& decision) override;
         virtual AbstractTypeDecision& operator=(AbstractTypeDecision&& decision) override;
 
         virtual void parseInputData(char* fileName);
-        virtual int targetFunc() const override;
+        virtual uint64_t targetFunc() const override;
         virtual int getIdMaxProc() const override;
         virtual int getIdMinProc() const override;
-        virtual int getExecTime() const override;
+        virtual uint64_t getExecTime() const override;
         virtual void moveJob(int id, int from, int to) override;
         virtual void updateTargetValue();
         virtual void setToZero() override;

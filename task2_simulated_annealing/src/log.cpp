@@ -11,7 +11,7 @@
 
 void 
 log(char* fileName,  SPtrAbstractData bestSolution,   
-    ParamsT& params, std::chrono::duration<double> time)
+    ParamsT& params, std::chrono::duration<double> time, std::string law)
 {
     std::ofstream log;
     log.open("log.txt", std::ios::app);
@@ -27,6 +27,7 @@ log(char* fileName,  SPtrAbstractData bestSolution,
             << params["NUM_OF_IT_INNER_MOST_LOOP_WITHOUT_CHANGE"] << std::endl;
         log << "\tNUM OF IT WITHOUT CHANGE TEMPERATUE = " 
             << params["NUM_OF_IT_WITHOUT_CHANGE_TEMPERATUE"] << std::endl;
+        log << "\tDECREASE LAW = " << law << std::endl;
         log << "\t\tTARGET VALUE = " << bestSolution->targetFunc() << std::endl;
         log << "\t\tEXECUTION TIME (SUM) = " 
             << bestSolution->getExecTime() << std::endl;

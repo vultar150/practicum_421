@@ -7,7 +7,7 @@ using ParamsT = std::unordered_map<std::string, int>;
 
 void 
 log(char* fileName,  SPtrAbstractData bestSolution, 
-    ParamsT& params, std::chrono::duration<double> time);
+    ParamsT& params, std::chrono::duration<double> time, std::string law);
 
 
 #endif // LOG_H

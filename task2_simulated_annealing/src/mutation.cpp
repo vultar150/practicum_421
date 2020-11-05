@@ -31,10 +31,10 @@ bool MyOperation::isMin() const { return _isMin; }
 template<typename TCont>
 int MyOperation::getRandomIdPositive(TCont& cont, uint64_t execTime)
 {
-    int random = arc4random_uniform(execTime);
+    uint64_t random = arc4random_uniform(execTime);
     auto it = cont.begin();
 
-    int right = (*it).second;
+    uint64_t right = (*it).second;
     while (random >= right)
     {
         it++;
@@ -47,16 +47,16 @@ int MyOperation::getRandomIdPositive(TCont& cont, uint64_t execTime)
 template<typename TCont>
 int MyOperation::getRandomIdNegative(TCont& cont, uint64_t execTime, bool shouldNotBeEmpty)
 {
-    int size = cont.size();
+    uint64_t size = cont.size();
     auto it = cont.begin();
-    std::unordered_map<int, int> positive;
+    std::unordered_map<int, uint64_t> positive;
     auto it2 = positive.begin();
 
     if (shouldNotBeEmpty)
     {
         for (const auto& el : cont)
         {
-            int ex = el.second;
+            uint64_t ex = el.second;
             if (ex) positive[el.first] = ex;
         }
         size = positive.size();
@@ -70,7 +70,7 @@ int MyOperation::getRandomIdNegative(TCont& cont, uint64_t execTime, bool should
     while(random >= right)
     {
         if (shouldNotBeEmpty) it2++; 
-        else   it++;
+        else                  it++;
         right += shouldNotBeEmpty ? (execTime - (*it2).second) : (execTime - (*it).second);
     }
     return shouldNotBeEmpty ? (*it2).first : (*it).first;

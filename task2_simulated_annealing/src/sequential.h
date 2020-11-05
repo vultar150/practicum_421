@@ -33,8 +33,7 @@ class SequentialAlg
 
             while (itWithoutChange <= _params["NUM_OF_IT_INNER_MOST_LOOP_WITHOUT_CHANGE"])
             {
-                while (itT <= _params["NUM_OF_IT_WITHOUT_CHANGE_TEMPERATUE"] and 
-                       itWithoutChange <= _params["NUM_OF_IT_INNER_MOST_LOOP_WITHOUT_CHANGE"])
+                while (itT <= _params["NUM_OF_IT_WITHOUT_CHANGE_TEMPERATUE"])
                 {
                     newDecision = _mutation->mutate(_decision);
                     if (doChangeDecision(newDecision))
@@ -57,35 +56,6 @@ class SequentialAlg
                 itT = 1;
             }
             return _record;
-
-
-            // if (_decision->getData().size() <= 1) return _record;
-            // int it = 1, itWithoutChange = 0;
-            // std::shared_ptr<AbstractTypeDecision<T>> newDecision;
-
-            // while (itWithoutChange <= _params["NUM_OF_IT_INNER_MOST_LOOP_WITHOUT_CHANGE"])
-            // {
-            //     newDecision = _mutation->mutate(_decision);
-            //     if (doChangeDecision(newDecision))
-            //     {
-            //         _decision = newDecision;
-            //         int delta = (_isMin) ? 
-            //                     _record->targetFunc() - _decision->targetFunc() :
-            //                     _decision->targetFunc() - _record->targetFunc();
-            //         if (delta > 0)
-            //         {
-            //             _record = _decision;
-            //             itWithoutChange = 0;
-            //         }
-            //     }
-            //     itWithoutChange++;
-            //     if (not itWithoutChange % (_params["NUM_OF_IT_WITHOUT_CHANGE_TEMPERATUE"] + 1))
-            //     {
-            //         _T = _law->getDecreaseTemperature(it);
-            //         it++;
-            //     }
-            // }
-            // return _record;
         }
 
 
@@ -118,7 +88,6 @@ class SequentialAlg
             std::cout << "EXECUTION TIME (SUM) = " << _record->getExecTime() << std::endl;
             std::cout << "ID MAX PROC = " << _record->getIdMaxProc() << std::endl;
             std::cout << "ID MIN PROC = " << _record->getIdMinProc() << std::endl;
-            // std::cout << "ID MIN PROC = " << _record->getIdMinProc() << std::endl;
             std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
             std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
         }

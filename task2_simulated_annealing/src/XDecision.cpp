@@ -36,12 +36,6 @@ void Processor::eraiseJob(int id)
 }
 
 
-// int Processor::getExecTime() const { return _executionTime; }
-
-
-// int Processor::getIdMaxExecTime() const { return _idMaxExecTime; }
-
-
 Processor::operator uint64_t() const { return _executionTime; }
 
 

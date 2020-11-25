@@ -33,8 +33,8 @@ int main(int argc, char** argv)
         {
             SequentialAlg<TypeDecision, MyOperation,
                           CauchyLaw, MyDataType> algorithm(bestSolution, params);
-            #pragma omp critical 
-            { algorithm.print(); }
+            // #pragma omp critical 
+            // { algorithm.print(); }
             records[omp_get_thread_num()] = algorithm.startMainCycle();
             #pragma omp barrier
         }
@@ -58,6 +58,6 @@ int main(int argc, char** argv)
     auto end = std::chrono::steady_clock::now();
     auto timeDiff = end - start;
     log(argv[1], bestSolution, params, timeDiff, "CauchyLaw");
-    // bestSolution->print();
+    std::cout << "RECORD = " << bestSolution->targetFunc() << std::endl;
     return 0;
 }

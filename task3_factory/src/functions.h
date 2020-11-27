@@ -1,64 +1,190 @@
 #ifndef FUNCTIONS_H
 #define FUNCTIONS_H
 
-class TFunction;
+#include <map>
 
-using TFunctionPtr = std::unique_ptr<TFunction>;
+class IFunction;
+
+using IFunctionPtr = std::unique_ptr<IFunction>;
 
 
-class TFunction
+class IFunction
 {
     public:
-        virtual double operator()(const double x) const = 0;
-        virtual double getDerive(const double x) const = 0;
-        virtual ~TFunction();
+
+        // virtual IFunction& operator=(const IFunction& func) = 0;
+        // virtual IFunction& operator=(IFunction&& func) = 0;
+        virtual double operator()(const double& x) const = 0;
+        virtual double getDerive(const double& x) const = 0;
+        virtual ~IFunction();
 };
 
-class Const: public TFunction
+
+class Polynomial: public IFunction
 {
     public:
-        Const(const double x=7);
-
-        virtual double operator()(const double x) const override;
-
-        virtual double getDerive(const double x) const override;
-
-        virtual ~Const();
+        Polynomial(const std::initializer_list<int>& init={0});
+        // virtual IFunction& operator=(const IFunction& func) override;
+        // virtual IFunction& operator=(IFunction&& func) override;
+        virtual double operator()(const double& x) const override;
+        virtual double getDerive(const double& x) const override;
+        virtual ~Polynomial();
 
     private:
-        double value;
+        std::vector<int> coef;
 };
 
-class Ident: public TFunction
+
+class Const: public Polynomial
 {
     public:
-        Ident();
+        Const(int x=0);
+        // virtual double operator()(const double x) const override;
+        // virtual double getDerive(const double x) const override;
+        virtual ~Const();
 
-        virtual double operator()(const double x) const override;
+    // private:
+    //     double value;
+};
 
-        virtual double getDerive(const double x) const override;
+class Ident: public Polynomial
+{
+    public:
+        Ident(int x=0);
+
+        // virtual double operator()(const double x) const override;
+
+        // virtual double getDerive(const double x) const override;
 
         virtual ~Ident();
 };
 
 
-class FuncFactory
+// class Power: public Polynomial
+// {
+//     public:
+//         Power(int x=0);
+//         virtual ~Power();
+// }
+
+class Exp: public IFunction
 {
-    private:
-        class TImpl;
-        std::unique_ptr<TImpl> impl;
-
     public:
-        FuncFactory();
+        Exp(int x=0);
+        // virtual IFunction& operator=(const IFunction& func) override;
+        // virtual IFunction& operator=(IFunction&& func) override;
+        virtual double operator()(const double& x) const override;
+        virtual double getDerive(const double& x) const override;
+        virtual ~Exp();
+};
 
-        ~FuncFactory();
 
-        TFunctionPtr createFunction(const std::string& id) const;
+class TImpl {
+private:
+    class ICreator
+    {
+        public:
+            virtual ~ICreator() = default;
+            virtual IFunctionPtr create(void* param) const = 0;
+            virtual IFunctionPtr create() const = 0;
+    };
 
-        std::vector<std::string> getAvailableFunctions() const;
+    template<typename CurrentFunction, typename ParamT>
+    class Creator: public ICreator
+    {
+        public:
+            virtual ~Creator() = default;
+
+            virtual IFunctionPtr create(void* param) const override
+            {
+                return std::make_unique<CurrentFunction>(*(static_cast<ParamT*>(param)));
+            }
+
+            virtual IFunctionPtr create() const override
+            {
+                return std::make_unique<CurrentFunction>();
+            }
+    };
+
+    using ICreatorPtr = std::shared_ptr<ICreator>;
+    using RegisteredCreators = std::map<std::string, ICreatorPtr>;
+
+    RegisteredCreators registeredCreators;
+
+    template<typename T, typename U>
+    void registerCreator(const std::string& type)
+    {
+        registeredCreators[type] = std::make_shared<Creator<T, U>>();
+    }
 
 
+    void registerAll()
+    {
+        registerCreator<Polynomial, std::initializer_list<int>>("polynomial");
+        registerCreator<Const, int>("const");
+        registerCreator<Ident, int>("ident");
+        // registerCreator<Power, int>("power");
+        registerCreator<Exp, int>("exp");
+    }
 
+public:
+
+    TImpl() { registerAll(); }
+
+    template<typename T>
+    IFunctionPtr createFunction(const std::string& type, T&& param) const
+    {
+        auto creator = registeredCreators.find(type);
+        if (creator == registeredCreators.end()) // need to be fixed
+        {
+            return nullptr;
+        }
+        return creator->second->create(&param);
+    }
+
+    IFunctionPtr createFunction(const std::string& type) const
+    {
+        auto creator = registeredCreators.find(type);
+        if (creator == registeredCreators.end()) // need to be fixed
+        {
+            return nullptr;
+        }
+        return creator->second->create();
+    }
+
+    std::vector<std::string> getAvailableFunctions() const 
+    {
+        std::vector<std::string> result;
+        for(const auto& type : registeredCreators)
+        {
+            result.push_back(type.first);
+        }
+        return result;
+    }
+};
+
+
+class FuncFactory {
+private:
+    std::unique_ptr<TImpl> impl;
+
+public:
+    FuncFactory();
+
+    ~FuncFactory();
+
+    template<typename T>
+    IFunctionPtr createFunction(const std::string& type, T&& param) const
+    {
+        return impl->createFunction(type, std::forward<T>(param));
+    }
+
+    IFunctionPtr createFunction(const std::string& type,
+                                std::initializer_list<int> param) const;
+
+    IFunctionPtr createFunction(const std::string& type) const;
+
+    std::vector<std::string> getAvailableFunctions() const;
 };
 
 

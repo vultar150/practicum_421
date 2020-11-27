@@ -122,6 +122,53 @@ Exp::~Exp() = default;
 
 // FuncFactory
 
+template<typename CurrentFunction, typename ParamT>
+IFunctionPtr TImpl::Creator<CurrentFunction, ParamT>::create(void* param) const 
+{
+    return std::make_unique<CurrentFunction>(*(static_cast<ParamT*>(param)));
+}
+
+
+template<typename CurrentFunction, typename ParamT>
+IFunctionPtr TImpl::Creator<CurrentFunction, ParamT>::create() const 
+{
+    return std::make_unique<CurrentFunction>();
+}
+
+
+void TImpl::registerAll()
+{
+    registerCreator<Polynomial, std::initializer_list<int>>("polynomial");
+    registerCreator<Const, int>("const");
+    registerCreator<Ident, int>("ident");
+    // registerCreator<Power, int>("power");
+    registerCreator<Exp, int>("exp");
+}
+
+TImpl::TImpl() { registerAll(); }
+
+
+IFunctionPtr TImpl::createFunction(const std::string& type) const
+{
+    auto creator = registeredCreators.find(type);
+    if (creator == registeredCreators.end()) // need to be fixed
+    {
+        return nullptr;
+    }
+    return creator->second->create();
+}
+
+
+std::vector<std::string> TImpl::getAvailableFunctions() const 
+{
+    std::vector<std::string> result;
+    for(const auto& type : registeredCreators)
+    {
+        result.push_back(type.first);
+    }
+    return result;
+}
+
 
 FuncFactory::FuncFactory(): impl(std::make_unique<TImpl>()) {}
 

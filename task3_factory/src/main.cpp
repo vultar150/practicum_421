@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <map>
 #include <vector>
 #include <memory>
 
@@ -9,12 +10,14 @@
 int main(int argc, char **argv)
 {   
     FuncFactory factory;
+    // std::vector<TFunctionPtr> cont;
     auto functions = factory.getAvailableFunctions();
     for (const auto& func : functions)
     {
         std::cout << func << std::endl;
     }
     std::cout << std::endl;
+
     auto fConst = factory.createFunction("const", 2);
     std::cout << "CONST(2) = " << (*fConst)(7) << std::endl;
     auto fPolynomial = factory.createFunction("polynomial", {1, 2, 3});
@@ -31,13 +34,8 @@ int main(int argc, char **argv)
 
     auto fIdent = factory.createFunction("ident");
     std::cout << "IDENT(5.5) = " << (*fIdent)(5.5) << std::endl;
-    std::cout << "DERIVE OF IDENT(5.5) = " << fIdent->getDerive(5.5) << std::endl;
+    std::cout << "DERIVE OF IDENT(5.5) = " << (*fIdent).getDerive(5.5) << std::endl;
 
-    // for (const auto& funcName : {"const", "ident"})
-    // {
-    //     auto func = factory.createFunction(funcName);
-    //     std::cout << (*func)(22) << std::endl;
-    // }
 
 
     return 0;

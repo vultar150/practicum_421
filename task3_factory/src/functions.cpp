@@ -129,14 +129,14 @@ Exp::~Exp() = default;
 template<typename CurrentFunction, typename ParamT>
 IFunctionPtr TImpl::Creator<CurrentFunction, ParamT>::create(void* param) const 
 {
-    return std::make_unique<CurrentFunction>(*(static_cast<ParamT*>(param)));
+    return std::make_shared<CurrentFunction>(*(static_cast<ParamT*>(param)));
 }
 
 
 template<typename CurrentFunction, typename ParamT>
 IFunctionPtr TImpl::Creator<CurrentFunction, ParamT>::create() const 
 {
-    return std::make_unique<CurrentFunction>();
+    return std::make_shared<CurrentFunction>();
 }
 
 

@@ -4,7 +4,7 @@
 
 class IFunction;
 
-using IFunctionPtr = std::unique_ptr<IFunction>;
+using IFunctionPtr = std::shared_ptr<IFunction>;
 
 
 class IFunction {
@@ -13,6 +13,7 @@ public:
     // virtual IFunction& operator=(IFunction&& func) = 0;
     virtual double operator()(const double& x) const = 0;
     virtual double getDerive(const double& x) const = 0;
+    // virtual std::string toString() const = 0;
     virtual ~IFunction();
 };
 

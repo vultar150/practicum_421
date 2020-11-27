@@ -19,6 +19,7 @@ public:
 
 class Polynomial: public IFunction {
 public:
+    Polynomial(int x);
     Polynomial(const std::initializer_list<int>& init={0});
     // virtual IFunction& operator=(const IFunction& func) override;
     // virtual IFunction& operator=(IFunction&& func) override;
@@ -45,12 +46,12 @@ public:
 };
 
 
-// class Power: public Polynomial
-// {
-//     public:
-//         Power(int x=0);
-//         virtual ~Power();
-// }
+class Power: public Polynomial
+{
+    public:
+        Power(int x=0);
+        virtual ~Power();
+};
 
 class Exp: public IFunction {
 public:

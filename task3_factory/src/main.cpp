@@ -10,13 +10,17 @@
 int main(int argc, char **argv)
 {   
     FuncFactory factory;
-    // std::vector<TFunctionPtr> cont;
+    std::vector<IFunctionPtr> cont;
     auto functions = factory.getAvailableFunctions();
     for (const auto& func : functions)
     {
         std::cout << func << std::endl;
     }
     std::cout << std::endl;
+    auto f = factory.createFunction("power", 3);
+    std::cout << "POWER^3 (2) = " << (*f)(2) << std::endl;
+    std::cout << "POWER^3 (4) = " << (*f)(4) << std::endl;
+    std::cout << "DERIVE OF POWER^3 (4) = " << (*f).getDerive(4) << std::endl;
 
     auto fConst = factory.createFunction("const", 2);
     std::cout << "CONST(2) = " << (*fConst)(7) << std::endl;

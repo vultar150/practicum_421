@@ -15,6 +15,13 @@ IFunction::~IFunction() = default;
 
 Polynomial::~Polynomial() = default;
 
+
+Polynomial::Polynomial(int x): coef(x, 0)
+{
+    coef.emplace_back(1);
+}
+
+
 Polynomial::Polynomial(const std::initializer_list<int>& init): coef(init) {}
 
 
@@ -88,12 +95,9 @@ Ident::~Ident() = default;
 
 // Power
 
-// Power::Power(int x)
-// {
+Power::Power(int x): Polynomial(x) {}
 
-// }
-
-// Power::~Power() = default;
+Power::~Power() = default;
 
 // end Power
 
@@ -141,7 +145,7 @@ void TImpl::registerAll()
     registerCreator<Polynomial, std::initializer_list<int>>("polynomial");
     registerCreator<Const, int>("const");
     registerCreator<Ident, int>("ident");
-    // registerCreator<Power, int>("power");
+    registerCreator<Power, int>("power");
     registerCreator<Exp, int>("exp");
 }
 

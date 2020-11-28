@@ -88,11 +88,6 @@ public:
 
     virtual std::string toString() const override { return str; }
 
-    // virtual std::string getName() const { 
-    //     return std::string("Polynomial"); 
-    // }
-    // virtual ~Polynomial();
-
 protected:
     std::vector<double> coef;
     std::string str;
@@ -102,20 +97,12 @@ protected:
 class Const: public Polynomial {
 public:
     Const(double x=0.): Polynomial({x}) {}
-    // virtual std::string getName() const override { 
-    //     return std::string("Const"); 
-    // }
-    // virtual ~Const();
 };
 
 
 class Ident: public Polynomial {
 public:
     Ident(int x=0): Polynomial({0., 1.}) {}
-    // virtual std::string getName() const override {
-    //     return std::string("Ident");
-    // }
-    // virtual ~Ident();
 };
 
 
@@ -123,11 +110,8 @@ class Power: public Polynomial
 {
     public:
         Power(int x=0): Polynomial(x) {}
-        // virtual std::string getName() const override { 
-        //     return std::string("Power");
-        // }
-        // virtual ~Power();
 };
+
 
 class Exp: public IFunction {
 public:
@@ -147,7 +131,7 @@ public:
     virtual std::string toString() const override {
         return str;
     }
-    // virtual ~Exp();
+
 private:
     double coef;
     std::string str;
@@ -166,7 +150,6 @@ private:
     template<typename CurrentFunction, typename ParamT>
     class Creator: public ICreator {
     public:
-        // virtual ~Creator() = default;
         virtual IFunctionPtr create(void* param) const override {
             return std::make_shared<CurrentFunction>(*(static_cast<ParamT*>(param)));
         }

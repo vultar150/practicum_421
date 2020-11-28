@@ -13,7 +13,7 @@ public:
     // virtual IFunction& operator=(IFunction&& func) = 0;
     virtual double operator()(const double& x) const = 0;
     virtual double getDerive(const double& x) const = 0;
-    // virtual std::string toString() const = 0;
+    virtual std::string toString() const = 0;
     virtual ~IFunction();
 };
 
@@ -26,7 +26,8 @@ public:
     // virtual IFunction& operator=(IFunction&& func) override;
     virtual double operator()(const double& x) const override;
     virtual double getDerive(const double& x) const override;
-    // virtual std::string toString() const override;
+    virtual std::string toString() const override;
+    virtual std::string getName() const;
     virtual ~Polynomial();
 
 protected:
@@ -37,16 +38,15 @@ protected:
 class Const: public Polynomial {
 public:
     Const(double x=0.);
-    // virtual std::string toString() const override;
+    virtual std::string getName() const override;
     virtual ~Const();
 };
 
 
 class Ident: public Polynomial {
 public:
-    // Ident();
     Ident(int x=0);
-    // virtual std::string toString() const override;
+    virtual std::string getName() const override;
     virtual ~Ident();
 };
 
@@ -55,20 +55,21 @@ class Power: public Polynomial
 {
     public:
         Power(int x=0);
-        // virtual std::string toString() const override;
+        virtual std::string getName() const override;
         virtual ~Power();
 };
 
 class Exp: public IFunction {
 public:
-    // Exp();
-    Exp(int x=0);
+    Exp(int x=1);
     // virtual IFunction& operator=(const IFunction& func) override;
     // virtual IFunction& operator=(IFunction&& func) override;
     virtual double operator()(const double& x) const override;
     virtual double getDerive(const double& x) const override;
-    // virtual std::string toString() const override;
+    virtual std::string toString() const override;
     virtual ~Exp();
+private:
+
 };
 
 

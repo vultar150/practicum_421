@@ -1,3 +1,5 @@
+#include <iostream>
+#include <sstream>
 #include <vector>
 #include <map>
 #include <string>
@@ -6,6 +8,17 @@
 #include <initializer_list>
 
 #include "functions.h"
+
+// for transformation to std::string
+
+template<typename T>
+std::string toStr(T value)
+{
+    std::ostringstream s;
+    s.precision(std::numeric_limits<T>::digits10);
+    s << value;
+    return s.str();
+}
 
 
 IFunction::~IFunction() = default;
@@ -48,60 +61,54 @@ double Polynomial::getDerive(const double& x) const
     return result;
 }
 
-// std::string Polynomial::toString() const
-// {
-//     auto it = coef.begin();
-//     std::string result = "Polynomial ";
-//     std::string x = "";
-//     int i = 0;
-//     for(const auto& cf : coef)
-//     {
-//         i++;
-//         result += to_string(cf) + "*" + 
-//     }
-// }
+
+std::string Polynomial::toString() const
+{
+    std::string result = this->getName();
+    if (coef.size() <= 1) 
+    {
+        result += toStr(coef[0]);
+        return result;
+    }
+    bool needPlus = false;
+    result += (coef[0] != 0.) ? (needPlus = true, toStr(coef[0])) : "";
+    result += (coef[1] != 0.) ? needPlus = true, ((coef[0] != 0. ? " + " : "") + 
+                                (coef[1] != 1. ? toStr(coef[1]) + "*" : "") + 
+                                "x") : "";
+    auto it = coef.begin() + 2;
+    auto f = [&](const double& cf, const int& pow) {
+                if (cf == 0) return;
+                result += (needPlus ? " + " : "") + 
+                          (cf != 1. ? toStr(cf) + "*" : "") + 
+                          "x^" + toStr(pow);
+                needPlus = true;
+             };
+    for (int power = 2; it != coef.end(); it++, power++) { f(*it, power); }
+    return result;
+}
+
+
+std::string Polynomial::getName() const { return std::string("Polynomial "); }
 
 // end Polynomial
+
 
 // Const
 
 Const::Const(double x): Polynomial({x}) {}
 
-
-// double Const::operator()(const double x) const
-// {
-//     return value;
-// }
-
-
-// double Const::getDerive(const double x) const
-// {
-//     return 0.;
-// }
-
+std::string Const::getName() const { return std::string("Const "); }
 
 Const::~Const() = default;
 
 // end Const
 
 
-
 // Ident
-
-// Ident::Ident(): Polynomial({0., 1.}) {}
 
 Ident::Ident(int x): Polynomial({0., 1.}) {}
 
-
-// double Ident::operator()(const double x) const { return x;
-// }
-
-
-// double Ident::getDerive(const double x) const
-// {
-//     return 1.;
-// }
-
+std::string Ident::getName() const { return std::string("Ident "); }
 
 Ident::~Ident() = default;
 
@@ -112,6 +119,8 @@ Ident::~Ident() = default;
 
 Power::Power(int x): Polynomial(x) {}
 
+std::string Power::getName() const { return std::string("Power "); }
+
 Power::~Power() = default;
 
 // end Power
@@ -119,7 +128,6 @@ Power::~Power() = default;
 
 // exp
 
-// Exp::Exp() {}
 Exp::Exp(int x) {}
 
 
@@ -133,6 +141,9 @@ double Exp::getDerive(const double& x) const
 {
     return (*this)(x);
 }
+
+
+std::string Exp::toString() const { return std::string("Exp"); }
 
 
 Exp::~Exp() = default;

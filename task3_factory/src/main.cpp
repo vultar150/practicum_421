@@ -1,8 +1,5 @@
 #include <iostream>
-#include <string>
-#include <map>
 #include <vector>
-#include <memory>
 
 #include "functions.h"
 
@@ -27,7 +24,7 @@ int main(int argc, char **argv)
 
     std::cout << ff->toString() << " for x = 10 is " << (*ff)(10) << std::endl;
     std::cout << gg->toString() << " for x = 10 is " << (*gg)(10) << std::endl;
-    
+
     std::cout << std::endl;
     auto fConst = factory.createFunction("const", 2.);
     std::cout << fConst->toString() << " for x = 7 is " << (*fConst)(7) << std::endl;
@@ -54,6 +51,13 @@ int main(int argc, char **argv)
     auto fPolynomial3 = factory.createFunction("polynomial", {0, 0, 0, 1., 0, 2.33, 0, 0});
     std::cout << fPolynomial3->toString() << " for x = 2.2 is " << (*fPolynomial3)(2.2) << std::endl;
     std::cout << "derive for x = 2.2 is " << fPolynomial3->getDerive(2.2) << std::endl;
+    std::cout << std::endl;
 
+    // *fPolynomial4 = *fPolynomial3;
+    // std::cout << fPolynomial4->toString() << " for x = 2.2 is " << (*fPolynomial4)(2.2) << std::endl;
+    // std::cout << "derive for x = 2.2 is " << fPolynomial4->getDerive(2.2) << std::endl;
+    // std::cout << std::endl;
+    // std::cout << fPolynomial3->toString() << " for x = 2.2 is " << (*fPolynomial3)(2.2) << std::endl;
+    // std::cout << "derive for x = 2.2 is " << fPolynomial3->getDerive(2.2) << std::endl;
     return 0;
 }

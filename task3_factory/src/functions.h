@@ -21,28 +21,32 @@ public:
 class Polynomial: public IFunction {
 public:
     Polynomial(int x);
-    Polynomial(const std::initializer_list<int>& init={0});
+    Polynomial(const std::initializer_list<double>& init={0.});
     // virtual IFunction& operator=(const IFunction& func) override;
     // virtual IFunction& operator=(IFunction&& func) override;
     virtual double operator()(const double& x) const override;
     virtual double getDerive(const double& x) const override;
+    // virtual std::string toString() const override;
     virtual ~Polynomial();
 
-private:
-    std::vector<int> coef;
+protected:
+    std::vector<double> coef;
 };
 
 
 class Const: public Polynomial {
 public:
-    Const(int x=0);
+    Const(double x=0.);
+    // virtual std::string toString() const override;
     virtual ~Const();
 };
 
 
 class Ident: public Polynomial {
 public:
+    // Ident();
     Ident(int x=0);
+    // virtual std::string toString() const override;
     virtual ~Ident();
 };
 
@@ -51,16 +55,19 @@ class Power: public Polynomial
 {
     public:
         Power(int x=0);
+        // virtual std::string toString() const override;
         virtual ~Power();
 };
 
 class Exp: public IFunction {
 public:
+    // Exp();
     Exp(int x=0);
     // virtual IFunction& operator=(const IFunction& func) override;
     // virtual IFunction& operator=(IFunction&& func) override;
     virtual double operator()(const double& x) const override;
     virtual double getDerive(const double& x) const override;
+    // virtual std::string toString() const override;
     virtual ~Exp();
 };
 
@@ -103,7 +110,8 @@ public:
     IFunctionPtr createFunction(const std::string& type, T&& param) const 
     {
         auto creator = registeredCreators.find(type);
-        if (creator == registeredCreators.end()) { // need to be fixed
+        if (creator == registeredCreators.end()) // need to be fixed
+        {
             return nullptr;
         }
         return creator->second->create(&param);
@@ -131,7 +139,7 @@ public:
     }
 
     IFunctionPtr createFunction(const std::string& type,
-                                std::initializer_list<int> param) const;
+                                std::initializer_list<double> param) const;
 
     IFunctionPtr createFunction(const std::string& type) const;
 

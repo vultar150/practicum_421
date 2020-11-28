@@ -16,13 +16,13 @@ IFunction::~IFunction() = default;
 Polynomial::~Polynomial() = default;
 
 
-Polynomial::Polynomial(int x): coef(x, 0)
+Polynomial::Polynomial(int x): coef(x, 0.)
 {
-    coef.emplace_back(1);
+    coef.emplace_back(1.);
 }
 
 
-Polynomial::Polynomial(const std::initializer_list<int>& init): coef(init) {}
+Polynomial::Polynomial(const std::initializer_list<double>& init): coef(init) {}
 
 
 double Polynomial::operator()(const double& x) const 
@@ -48,11 +48,24 @@ double Polynomial::getDerive(const double& x) const
     return result;
 }
 
+// std::string Polynomial::toString() const
+// {
+//     auto it = coef.begin();
+//     std::string result = "Polynomial ";
+//     std::string x = "";
+//     int i = 0;
+//     for(const auto& cf : coef)
+//     {
+//         i++;
+//         result += to_string(cf) + "*" + 
+//     }
+// }
+
 // end Polynomial
 
 // Const
 
-Const::Const(int x): Polynomial({x}) {}
+Const::Const(double x): Polynomial({x}) {}
 
 
 // double Const::operator()(const double x) const
@@ -75,7 +88,9 @@ Const::~Const() = default;
 
 // Ident
 
-Ident::Ident(int x): Polynomial({0, 1}) {}
+// Ident::Ident(): Polynomial({0., 1.}) {}
+
+Ident::Ident(int x): Polynomial({0., 1.}) {}
 
 
 // double Ident::operator()(const double x) const { return x;
@@ -104,6 +119,7 @@ Power::~Power() = default;
 
 // exp
 
+// Exp::Exp() {}
 Exp::Exp(int x) {}
 
 
@@ -142,8 +158,8 @@ IFunctionPtr TImpl::Creator<CurrentFunction, ParamT>::create() const
 
 void TImpl::registerAll()
 {
-    registerCreator<Polynomial, std::initializer_list<int>>("polynomial");
-    registerCreator<Const, int>("const");
+    registerCreator<Polynomial, std::initializer_list<double>>("polynomial");
+    registerCreator<Const, double>("const");
     registerCreator<Ident, int>("ident");
     registerCreator<Power, int>("power");
     registerCreator<Exp, int>("exp");
@@ -182,7 +198,7 @@ FuncFactory::~FuncFactory() = default;
 
 IFunctionPtr 
 FuncFactory::createFunction(const std::string& type,
-                            std::initializer_list<int> param) const
+                            std::initializer_list<double> param) const
 {
     return impl->createFunction(type, param);
 }

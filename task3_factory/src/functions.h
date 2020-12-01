@@ -43,6 +43,8 @@ public:
 
 protected:
     std::string str;
+    bool moreThanOneTerms = false; // for string representation
+
     std::function<double(double)> getValue;
     std::function<double(double)> lgetDerive;
 };
@@ -55,8 +57,11 @@ public:
     friend IFunction operator*(const IFunction& f1, const IFunction& f2);
     friend IFunction operator/(const IFunction& f1, const IFunction& f2);
 
-    Expression(IFunction* a1, IFunction* a2): firstArg(std::move(a1)), 
-                                              secondArg(std::move(a2)) {}
+    Expression(IFunction* a1, IFunction* a2, bool twoTerms=false):
+                                                firstArg(std::move(a1)),
+                                                secondArg(std::move(a2)) 
+    { moreThanOneTerms = twoTerms; }
+                                                
 
     virtual Expression* clone() const override { return new Expression(*this); }
 
@@ -64,14 +69,6 @@ protected:
     std::shared_ptr<IFunction> firstArg;
     std::shared_ptr<IFunction> secondArg;
 };
-
-
-
-
-// template<typename F1, typename F2>
-// IFunction operator+(F1&& f1, F2&& f2) {
-    
-// }
 
 
 class Polynomial: public IFunction {
@@ -114,6 +111,7 @@ public:
                  };
         for (int power = 2; it != coef.end(); it++, power++) { f(*it, power); }
         str.pop_back(), str.pop_back(), str.pop_back();
+        if (str.size() > 3) moreThanOneTerms = true;
         getValue  = getValueLambdaInit();
         lgetDerive = getDeriveLambdaInit();
     }
@@ -281,7 +279,7 @@ public:
 // operations
 
 IFunction operator+(const IFunction& f1, const IFunction& f2) {
-    Expression* result = new Expression(f1.clone(), f2.clone());
+    Expression* result = new Expression(f1.clone(), f2.clone(), true);
     result->getValue = [result] (const double& x) {
                           return (*result->firstArg)(x) + (*result->secondArg)(x);
                        };
@@ -294,14 +292,16 @@ IFunction operator+(const IFunction& f1, const IFunction& f2) {
 
 
 IFunction operator-(const IFunction& f1, const IFunction& f2) {
-    Expression* result = new Expression(f1.clone(), f2.clone());
+    Expression* result = new Expression(f1.clone(), f2.clone(), true);
     result->getValue = [result] (const double& x) {
                           return (*result->firstArg)(x) - (*result->secondArg)(x);
                        };
     result->lgetDerive = [result] (const double& x) {
                              return result->firstArg->getDerive(x) - result->secondArg->getDerive(x);
                          };
-    result->str = result->firstArg->toString() + " - (" + result->secondArg->toString() + ")";
+    bool twoTerms = result->secondArg->moreThanOneTerms;
+    result->str = result->firstArg->toString() + " - " + 
+                  (twoTerms ? "(" + result->secondArg->toString() + ")" : result->secondArg->toString());
     return *result;
 }
 
@@ -315,7 +315,12 @@ IFunction operator*(const IFunction& f1, const IFunction& f2) {
                  return result->firstArg->getDerive(x) * (*result->secondArg)(x) + 
                         (*result->firstArg)(x) * result->secondArg->getDerive(x); // u' * v + u * v'
             };
-    result->str = "(" + result->firstArg->toString() + ") * (" + result->secondArg->toString() + ")";
+    bool twoTerms1 = result->firstArg->moreThanOneTerms;
+    bool twoTerms2 = result->secondArg->moreThanOneTerms;
+
+    result->str = (twoTerms1 ? "(" + result->firstArg->toString() + ")" : result->firstArg->toString()) + 
+                  " * " + 
+                  (twoTerms2 ? "(" + result->secondArg->toString() + ")" : result->secondArg->toString());
     return *result;
 }
 
@@ -331,7 +336,11 @@ IFunction operator/(const IFunction& f1, const IFunction& f2) {
                         (*result->firstArg)(x) * result->secondArg->getDerive(x) ) / 
                         ((*result->secondArg)(x) * (*result->secondArg)(x)); // (u' * v - u * v') / v * v
             };
-    result->str = "(" + result->firstArg->toString() + ") / (" + result->secondArg->toString() + ")";
+    bool twoTerms1 = result->firstArg->moreThanOneTerms;
+    bool twoTerms2 = result->secondArg->moreThanOneTerms;
+    result->str = (twoTerms1 ? "(" + result->firstArg->toString() + ")" : result->firstArg->toString()) + 
+                  " / " + 
+                  (twoTerms2 ? "(" + result->secondArg->toString() + ")" : result->secondArg->toString());
     return *result;
 }
 

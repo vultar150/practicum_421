@@ -1,4 +1,4 @@
-CC := clang++ -O3  -std=c++2a -Xpreprocessor -fopenmp -lomp
+CC := clang++ -O3 -g  -std=c++2a -Xpreprocessor -fopenmp -lomp
 # CC := clang++ -O3  -std=c++2a -fopenmp=libomp  -L/usr/local/Cellar/llvm/11.0.0/lib/
 CFLAGS := -c -Wall
 DIR := src/

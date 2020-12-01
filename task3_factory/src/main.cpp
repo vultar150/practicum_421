@@ -94,6 +94,18 @@ int main(int argc, char **argv)
         std::cout << "///////// RESULT ////////" << std::endl;
         std::cout << div1.toString() << "  for x = 2 is " << div1(2) << std::endl;
         std::cout << "derive for x = 2 is " << div1.getDerive(2) << std::endl;
+
+        std::cout << "///////// TEST OF ROOT ///////////" << std::endl;
+        auto f = factory.createFunction("polynomial", {1, 2, 1});
+        std::cout << f->toString() << "  for x = 1 is " << (*f)(1) << std::endl;
+        std::cout << "derive for x = 1 is " << f->getDerive(1) << std::endl;
+        // getRoot(*f);
+        std::cout << "root of " << f->toString() << " = 0 is x = " << getRoot(*f) << std::endl;
+        auto g = mul2 - *fExp;
+        double root = getRoot(g);
+        std::cout << "root of " << g.toString() << " = 0 is x = " << root << std::endl;
+        std::cout << g.toString() << "  for x = " << root << " is " << g(root) << std::endl;
+
     }
     catch (std::logic_error& err) {
         std::cerr << err.what() << std::endl;

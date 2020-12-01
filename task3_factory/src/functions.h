@@ -383,10 +383,12 @@ operator/(F1&& f1, F2&& f2) {
 // end operations
 
 
-double getRoot(IFunction& f, int it=500, double x0 = -2.) {
-    static const double EPS = 0.00001;
-    for(int i = 1; i <= it and std::abs(f(x0)) > EPS; i++) {
-        x0 = x0 + (f(x0) > 0 ? -f.getDerive(x0) : f.getDerive(x0)) / i;
+double getRoot(IFunction& f, int it=1000, double x0 = -2.) {
+    static const double EPS_FINISH = 0.00001;
+    double fx0 = f(x0);
+    for (int i = 1; i <= it and std::abs(fx0) > EPS_FINISH; i++) {
+        x0 = x0 + (fx0 > 0 ? -f.getDerive(x0) : f.getDerive(x0)) / i;
+        fx0 = f(x0);
     }
     return x0;
 }

@@ -99,13 +99,25 @@ int main(int argc, char **argv)
         auto f = factory.createFunction("polynomial", {1, 2, 1});
         std::cout << f->toString() << "  for x = 1 is " << (*f)(1) << std::endl;
         std::cout << "derive for x = 1 is " << f->getDerive(1) << std::endl;
-        // getRoot(*f);
-        std::cout << "root of " << f->toString() << " = 0 is x = " << getRoot(*f) << std::endl;
+
+        // std::cout << "root of " << f->toString() << " = 0 is x = " << getRoot(*f) << std::endl;
         auto g = mul2 - *fExp;
-        double root = getRoot(g);
+        double root = getRoot(g, 1000, -2);
         std::cout << "root of " << g.toString() << " = 0 is x = " << root << std::endl;
         std::cout << g.toString() << "  for x = " << root << " is " << g(root) << std::endl;
 
+        auto f2 = *f * *f;
+        std::cout << f2.toString() << "  for x = 1 is " << f2(1) << std::endl;
+        std::cout << "derive for x = 1 is " << f2.getDerive(1) << std::endl;
+        root = getRoot(f2, 1000, -0.5);
+        std::cout << "root of " << f2.toString() << " = 0 is x = " << root << std::endl;
+
+        auto f3 = Ident() + Const(1.);
+        std::cout << f3.toString() << "  for x = 1 is " << f3(1) << std::endl;
+        std::cout << "derive for x = 1 is " << f3.getDerive(1) << std::endl;
+        root = getRoot(f3);
+        std::cout << "root of " << f3.toString() << " = 0 is x = " << root << std::endl;
+        std::cout << f3.toString() << "  for x = " << root << " is " << f3(root) << std::endl;
     }
     catch (std::logic_error& err) {
         std::cerr << err.what() << std::endl;

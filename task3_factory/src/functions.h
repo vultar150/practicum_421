@@ -15,6 +15,7 @@
 
 
 class IFunction;
+class Expression;
 
 using IFunctionPtr = std::shared_ptr<IFunction>;
 
@@ -30,10 +31,10 @@ std::string toStr(T value) {
 
 class IFunction {
 public:
-    friend IFunction operator+(const IFunction& f1, const IFunction& f2);
-    friend IFunction operator-(const IFunction& f1, const IFunction& f2);
-    friend IFunction operator*(const IFunction& f1, const IFunction& f2);
-    friend IFunction operator/(const IFunction& f1, const IFunction& f2);
+    friend Expression operator+(const IFunction& f1, const IFunction& f2);
+    friend Expression operator-(const IFunction& f1, const IFunction& f2);
+    friend Expression operator*(const IFunction& f1, const IFunction& f2);
+    friend Expression operator/(const IFunction& f1, const IFunction& f2);
 
     virtual double operator()(const double& x) const { return getValue(x); }
     virtual double getDerive(const double& x) const { return lgetDerive(x); }
@@ -52,10 +53,10 @@ protected:
 
 class Expression: public IFunction {
 public:
-    friend IFunction operator+(const IFunction& f1, const IFunction& f2);
-    friend IFunction operator-(const IFunction& f1, const IFunction& f2);
-    friend IFunction operator*(const IFunction& f1, const IFunction& f2);
-    friend IFunction operator/(const IFunction& f1, const IFunction& f2);
+    friend Expression operator+(const IFunction& f1, const IFunction& f2);
+    friend Expression operator-(const IFunction& f1, const IFunction& f2);
+    friend Expression operator*(const IFunction& f1, const IFunction& f2);
+    friend Expression operator/(const IFunction& f1, const IFunction& f2);
 
     Expression(IFunction* a1, IFunction* a2, bool twoTerms=false):
                                                 firstArg(std::move(a1)),
@@ -97,7 +98,13 @@ public:
     }
 
     Polynomial(const std::initializer_list<double>& init={0.}): coef(init) {
-        if (coef.size() <= 1) {
+        if (coef.size() == 0) { 
+            throw std::logic_error("Empty parameters of polynomial"); 
+            return;
+        }
+        if (coef.size() == 1) {
+            getValue  = [this] (const double& x) { return this->coef[0]; };
+            lgetDerive = [] (const double& x) { return 0.; };
             str = toStr(coef[0]);
             return;
         }
@@ -280,7 +287,7 @@ public:
 
 // operations
 
-IFunction operator+(const IFunction& f1, const IFunction& f2) {
+Expression operator+(const IFunction& f1, const IFunction& f2) {
     Expression* result = new Expression(f1.clone(), f2.clone(), true);
     result->getValue = [result] (const double& x) {
                           return (*result->firstArg)(x) + (*result->secondArg)(x);
@@ -293,7 +300,7 @@ IFunction operator+(const IFunction& f1, const IFunction& f2) {
 }
 
 
-IFunction operator-(const IFunction& f1, const IFunction& f2) {
+Expression operator-(const IFunction& f1, const IFunction& f2) {
     Expression* result = new Expression(f1.clone(), f2.clone(), true);
     result->getValue = [result] (const double& x) {
                           return (*result->firstArg)(x) - (*result->secondArg)(x);
@@ -308,7 +315,7 @@ IFunction operator-(const IFunction& f1, const IFunction& f2) {
 }
 
 
-IFunction operator*(const IFunction& f1, const IFunction& f2) {
+Expression operator*(const IFunction& f1, const IFunction& f2) {
     Expression* result = new Expression(f1.clone(), f2.clone());
     result->getValue = [result] (const double& x) {
                           return (*result->firstArg)(x) * (*result->secondArg)(x);
@@ -327,7 +334,7 @@ IFunction operator*(const IFunction& f1, const IFunction& f2) {
 }
 
 
-IFunction operator/(const IFunction& f1, const IFunction& f2) {
+Expression operator/(const IFunction& f1, const IFunction& f2) {
     Expression* result = new Expression(f1.clone(), f2.clone());
     result->getValue = [result] (const double& x) {
                           if ((*result->secondArg)(x) == 0.) throw std::logic_error("divide by zero!!");
@@ -387,9 +394,10 @@ operator/(F1&& f1, F2&& f2) {
 
 double getRoot(IFunction& f, int it=1000, double x0 = -2.) {
     static const double EPS_FINISH = 0.00001;
+    static const double LAMBDA = 0.01;
     double fx0 = f(x0);
     for (int i = 1; i <= it and std::abs(fx0) > EPS_FINISH; i++) {
-        x0 = x0 + (fx0 > 0 ? -f.getDerive(x0) : f.getDerive(x0)) / i;
+        x0 = x0 + LAMBDA * (fx0 > 0 ? -f.getDerive(x0) : f.getDerive(x0));
         fx0 = f(x0);
     }
     return x0;

@@ -176,8 +176,7 @@ TEST(MyTest, TestIFunction) {
 }
 
 
-// test operations and exceptions
-TEST(MyTest, TestOperations) {
+TEST(MyTest, AddTest) {
     FuncFactory factory;
     auto fpolynomial1 = factory.createFunction("polynomial", {0, 0, 0, 1., 0, 2.33});
     auto fexp = factory.createFunction("exp");
@@ -226,8 +225,13 @@ TEST(MyTest, TestOperations) {
     ASSERT_THROW(5 + Ident() + fident, std::logic_error);
     ASSERT_THROW(Ident() + 5 + fident, std::logic_error);
     ASSERT_THROW(Ident() + fident + 5, std::logic_error);
+}
 
-    // subtraction testing
+
+TEST(MyTest, SubTest) {
+    FuncFactory factory;
+    auto fpolynomial1 = factory.createFunction("polynomial", {0, 0, 0, 1., 0, 2.33});
+    Ident fident;
 
     auto sub1 = *fpolynomial1 - Exp();
     ASSERT_NEAR(sub1(2), 75.17117, ABS_ERROR);
@@ -241,10 +245,14 @@ TEST(MyTest, TestOperations) {
     ASSERT_THROW(5. - Ident() + fident, std::logic_error);
     ASSERT_THROW(Ident() - 5. + fident, std::logic_error);
     ASSERT_THROW(Ident() - fident - 5., std::logic_error);
+}
 
-    // end subtraction testing
 
-    // multiplication test
+TEST(MyTest, MulTest) {
+    FuncFactory factory;
+    auto fexp = factory.createFunction("exp");
+    Ident fident;
+
     auto mul1 = *fexp * fident;
     ASSERT_NEAR(mul1(2), 14.7781, ABS_ERROR);
     ASSERT_NEAR(mul1.getDerive(2), 22.1672, ABS_ERROR);
@@ -265,11 +273,16 @@ TEST(MyTest, TestOperations) {
     ASSERT_THROW(5 * Ident() * fident, std::logic_error);
     ASSERT_THROW(mul2 * 5 * fident, std::logic_error);
     ASSERT_THROW(mul1 * fident * 5, std::logic_error);
+}
 
-    // end multiplication test
 
+TEST(MyTest, DivideTest) {
+    FuncFactory factory;
+    auto fpolynomial1 = factory.createFunction("polynomial", {0, 0, 0, 1., 0, 2.33});
+    auto fpolynomial2 = factory.createFunction("polynomial", {1, 0, 3});
+    auto mul1 = Exp() * Ident();
+    auto mul2 = Const(2.) + mul1 * (*fpolynomial2);
 
-    // arithmetic division test
     auto div1 = mul2 / (*fpolynomial1);
     ASSERT_NEAR(div1(2), 2.3512, ABS_ERROR);
     ASSERT_NEAR(div1.getDerive(2), -0.0117306, ABS_ERROR);
@@ -277,10 +290,10 @@ TEST(MyTest, TestOperations) {
 
     ASSERT_THROW("abc" / Ident(), std::logic_error);
     ASSERT_THROW(mul2 / "abc", std::logic_error);
-    ASSERT_THROW(fident / 5, std::logic_error);
+    ASSERT_THROW(Ident() / 5, std::logic_error);
     ASSERT_THROW(5 / div1, std::logic_error);
-    // end arithmetic division test
 }
+
 
 
 // gradient descent testing

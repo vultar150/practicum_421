@@ -18,7 +18,7 @@ int main(int argc, char **argv)
         auto ff = factory.createFunction("power", 2);
         std::cout << ff->toString() << "  for x = 2 is " << (*ff)(2) << std::endl;
         std::cout << ff->toString() << "  for x = 4 is " << (*ff)(4) << std::endl;
-        std::cout << "derive for x = 4 is " << (*ff).getDerive(4) << std::endl;
+        std::cout << "derive for x = 4.1 is " << (*ff).getDerive(4.1) << std::endl;
         std::cout << std::endl;
 
         auto gg = factory.createFunction("polynomial", {7, 0, 3, 15});
@@ -102,7 +102,7 @@ int main(int argc, char **argv)
 
         // std::cout << "root of " << f->toString() << " = 0 is x = " << getRoot(*f) << std::endl;
         auto g = mul2 - *fExp;
-        double root = getRoot(g, 1000, -2);
+        double root = getRoot(g, 1000, -8);
         std::cout << "root of " << g.toString() << " = 0 is x = " << root << std::endl;
         std::cout << g.toString() << "  for x = " << root << " is " << g(root) << std::endl;
 
@@ -118,6 +118,8 @@ int main(int argc, char **argv)
         root = getRoot(f3);
         std::cout << "root of " << f3.toString() << " = 0 is x = " << root << std::endl;
         std::cout << f3.toString() << "  for x = " << root << " is " << f3(root) << std::endl;
+
+        // auto f4 = Ident() + "df";
     }
     catch (std::logic_error& err) {
         std::cerr << err.what() << std::endl;

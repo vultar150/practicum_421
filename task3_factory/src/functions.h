@@ -63,7 +63,7 @@ public:
     { moreThanOneTerms = twoTerms; }
                                                 
 
-    virtual Expression* clone() const override { return new Expression(*this); }
+    Expression* clone() const override { return new Expression(*this); }
 
 protected:
     std::shared_ptr<IFunction> firstArg;
@@ -116,7 +116,7 @@ public:
         lgetDerive = getDeriveLambdaInit();
     }
 
-    virtual Polynomial* clone() const override { return new Polynomial(*this); }
+    Polynomial* clone() const override { return new Polynomial(*this); }
 
 protected:
     std::vector<double> coef;
@@ -131,7 +131,7 @@ public:
         lgetDerive = [] (const double& x) { return 0.; };
     }
 
-    virtual Const* clone() const override { return new Const(*this); }
+    Const* clone() const override { return new Const(*this); }
 
 protected:
     double value;
@@ -140,13 +140,13 @@ protected:
 
 class Power: public IFunction {
 public:
-    Power(int x=0): power(x) { 
+    Power(int x=0): power(x) {
         str = (x != 0) ? (x != 1 ? "x^" + toStr(x) : "x") : "1";
         getValue = [this](const double& x) { return std::pow(x, this->power); };
-        lgetDerive = [this](const double& x) { return std::pow(x, this->power - 1) * power; };
+        lgetDerive = [this](const double& x) { return power * std::pow(x, this->power - 1); };
     }
 
-    virtual Power* clone() const override { return new Power(*this); }
+    Power* clone() const override { return new Power(*this); }
 
 protected:
     int power;
@@ -161,7 +161,7 @@ public:
         lgetDerive = [] (const double& x) { return 1.; };
     }
 
-    virtual Ident* clone() const override { return new Ident(*this); }
+    Ident* clone() const override { return new Ident(*this); }
 };
 
 
@@ -173,7 +173,7 @@ public:
         lgetDerive = [this] (const double& x) { return this->getValue(x); };
     }
 
-    virtual Exp* clone() const override { return new Exp(*this); }
+    Exp* clone() const override { return new Exp(*this); }
 };
 
 
@@ -189,11 +189,13 @@ private:
     template<typename CurrentFunction, typename ParamT>
     class Creator: public ICreator {
     public:
-        virtual IFunctionPtr create(void* param) const override {
+        
+        IFunctionPtr create(void* param) const override {
             return std::make_shared<CurrentFunction>(*(static_cast<ParamT*>(param)));
         }
 
-        virtual IFunctionPtr create() const override {
+        
+        IFunctionPtr create() const override {
             return std::make_shared<CurrentFunction>();
         }
     };
@@ -346,36 +348,36 @@ IFunction operator/(const IFunction& f1, const IFunction& f2) {
 
 
 template<typename F1, typename F2>
-typename std::enable_if<
+std::enable_if_t<
 std::is_base_of< IFunction, std::decay_t<F1> >::value xor
-std::is_base_of< IFunction, std::decay_t<F2> >::value, IFunction>::type 
+std::is_base_of< IFunction, std::decay_t<F2> >::value, IFunction>
 operator+(F1&& f1, F2&& f2) {
     throw std::logic_error("invalid types of arguments");
 }
 
 
 template<typename F1, typename F2>
-typename std::enable_if<
+std::enable_if_t<
 std::is_base_of< IFunction, std::decay_t<F1> >::value xor
-std::is_base_of< IFunction, std::decay_t<F2> >::value, IFunction>::type 
+std::is_base_of< IFunction, std::decay_t<F2> >::value, IFunction>
 operator-(F1&& f1, F2&& f2) {
     throw std::logic_error("invalid types of arguments");
 }
 
 
 template<typename F1, typename F2>
-typename std::enable_if<
+std::enable_if_t<
 std::is_base_of< IFunction, std::decay_t<F1> >::value xor
-std::is_base_of< IFunction, std::decay_t<F2> >::value, IFunction>::type 
+std::is_base_of< IFunction, std::decay_t<F2> >::value, IFunction>
 operator*(F1&& f1, F2&& f2) {
     throw std::logic_error("invalid types of arguments");
 }
 
 
 template<typename F1, typename F2>
-typename std::enable_if<
+std::enable_if_t<
 std::is_base_of< IFunction, std::decay_t<F1> >::value xor
-std::is_base_of< IFunction, std::decay_t<F2> >::value, IFunction>::type 
+std::is_base_of< IFunction, std::decay_t<F2> >::value, IFunction>
 operator/(F1&& f1, F2&& f2) {
     throw std::logic_error("invalid types of arguments");
 }

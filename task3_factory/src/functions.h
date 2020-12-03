@@ -15,7 +15,6 @@
 
 
 class IFunction;
-class Expression;
 
 using IFunctionPtr = std::shared_ptr<IFunction>;
 
@@ -31,10 +30,10 @@ std::string toStr(T value) {
 
 class IFunction {
 public:
-    friend Expression operator+(const IFunction& f1, const IFunction& f2);
-    friend Expression operator-(const IFunction& f1, const IFunction& f2);
-    friend Expression operator*(const IFunction& f1, const IFunction& f2);
-    friend Expression operator/(const IFunction& f1, const IFunction& f2);
+    friend IFunction operator+(const IFunction& f1, const IFunction& f2);
+    friend IFunction operator-(const IFunction& f1, const IFunction& f2);
+    friend IFunction operator*(const IFunction& f1, const IFunction& f2);
+    friend IFunction operator/(const IFunction& f1, const IFunction& f2);
 
     virtual double operator()(const double& x) const { return getValue(x); }
     virtual double getDerive(const double& x) const { return lgetDerive(x); }
@@ -53,10 +52,10 @@ protected:
 
 class Expression: public IFunction {
 public:
-    friend Expression operator+(const IFunction& f1, const IFunction& f2);
-    friend Expression operator-(const IFunction& f1, const IFunction& f2);
-    friend Expression operator*(const IFunction& f1, const IFunction& f2);
-    friend Expression operator/(const IFunction& f1, const IFunction& f2);
+    friend IFunction operator+(const IFunction& f1, const IFunction& f2);
+    friend IFunction operator-(const IFunction& f1, const IFunction& f2);
+    friend IFunction operator*(const IFunction& f1, const IFunction& f2);
+    friend IFunction operator/(const IFunction& f1, const IFunction& f2);
 
     Expression(IFunction* a1, IFunction* a2, bool twoTerms=false):
                                                 firstArg(std::move(a1)),
@@ -286,8 +285,7 @@ public:
 
 
 // operations
-
-Expression operator+(const IFunction& f1, const IFunction& f2) {
+IFunction operator+(const IFunction& f1, const IFunction& f2) {
     Expression* result = new Expression(f1.clone(), f2.clone(), true);
     result->getValue = [result] (const double& x) {
                           return (*result->firstArg)(x) + (*result->secondArg)(x);
@@ -299,8 +297,7 @@ Expression operator+(const IFunction& f1, const IFunction& f2) {
     return *result;
 }
 
-
-Expression operator-(const IFunction& f1, const IFunction& f2) {
+IFunction operator-(const IFunction& f1, const IFunction& f2) {
     Expression* result = new Expression(f1.clone(), f2.clone(), true);
     result->getValue = [result] (const double& x) {
                           return (*result->firstArg)(x) - (*result->secondArg)(x);
@@ -314,8 +311,7 @@ Expression operator-(const IFunction& f1, const IFunction& f2) {
     return *result;
 }
 
-
-Expression operator*(const IFunction& f1, const IFunction& f2) {
+IFunction operator*(const IFunction& f1, const IFunction& f2) {
     Expression* result = new Expression(f1.clone(), f2.clone());
     result->getValue = [result] (const double& x) {
                           return (*result->firstArg)(x) * (*result->secondArg)(x);
@@ -333,8 +329,7 @@ Expression operator*(const IFunction& f1, const IFunction& f2) {
     return *result;
 }
 
-
-Expression operator/(const IFunction& f1, const IFunction& f2) {
+IFunction operator/(const IFunction& f1, const IFunction& f2) {
     Expression* result = new Expression(f1.clone(), f2.clone());
     result->getValue = [result] (const double& x) {
                           if ((*result->secondArg)(x) == 0.) throw std::logic_error("divide by zero!!");

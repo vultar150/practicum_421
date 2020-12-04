@@ -328,6 +328,11 @@ TEST(MyTest, GradientDescentTesting) {
     auto f3 = Ident() + Const(1.);
     ASSERT_EQ(f3.toString(), "x + 1");
     ASSERT_NEAR(f3(getRoot(f3, 1000, -10)), 0., ABS_ERROR);
+
+    auto f4 = Const(1.) + Power(2) + Power(3) - Const(1.);
+    ASSERT_NEAR(f4(getRoot(f4, 1000, 10.)), 0., ABS_ERROR);
+    
+
 }
 
 

@@ -175,7 +175,7 @@ TEST(MyTest, TestIFunction) {
     ASSERT_EQ(fpolynomial5.toString(), "1 + 2*x + 3*x^2 + 4*x^3");
 }
 
-
+// test addition operation
 TEST(MyTest, AddTest) {
     FuncFactory factory;
     auto fpolynomial1 = factory.createFunction("polynomial", {0, 0, 0, 1., 0, 2.33});
@@ -228,6 +228,7 @@ TEST(MyTest, AddTest) {
 }
 
 
+// subtraction test
 TEST(MyTest, SubTest) {
     FuncFactory factory;
     auto fpolynomial1 = factory.createFunction("polynomial", {0, 0, 0, 1., 0, 2.33});
@@ -248,6 +249,7 @@ TEST(MyTest, SubTest) {
 }
 
 
+// testing the multiplication operation
 TEST(MyTest, MulTest) {
     FuncFactory factory;
     auto fexp = factory.createFunction("exp");
@@ -276,7 +278,8 @@ TEST(MyTest, MulTest) {
 }
 
 
-TEST(MyTest, DivideTest) {
+// division testing
+TEST(MyTest, DivisionTest) {
     FuncFactory factory;
     auto fpolynomial1 = factory.createFunction("polynomial", {0, 0, 0, 1., 0, 2.33});
     auto fpolynomial2 = factory.createFunction("polynomial", {1, 0, 3});

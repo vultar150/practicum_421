@@ -297,6 +297,7 @@ IFunction operator+(const IFunction& f1, const IFunction& f2) {
     return *result;
 }
 
+
 IFunction operator-(const IFunction& f1, const IFunction& f2) {
     Expression* result = new Expression(f1.clone(), f2.clone(), true);
     result->getValue = [result] (const double& x) {

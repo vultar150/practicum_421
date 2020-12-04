@@ -320,6 +320,7 @@ TEST(MyTest, GradientDescentTesting) {
     // third equation
     ASSERT_EQ(f2.toString(), "(1 + 2*x + x^2) * (1 + 2*x + x^2)");
     ASSERT_NEAR(f2(getRoot(f2, 1000, 3)), 0., ABS_ERROR);
+    ASSERT_THROW(f2(getRoot(f2, 1000, 10)), std::logic_error);
 
     auto f3 = Ident() + Const(1.);
     ASSERT_EQ(f3.toString(), "x + 1");

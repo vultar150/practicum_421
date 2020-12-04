@@ -395,6 +395,8 @@ double getRoot(IFunction& f, int it=1000, double x0 = -2.) {
         x0 = x0 + LAMBDA * (fx0 > 0 ? -f.getDerive(x0) : f.getDerive(x0));
         fx0 = f(x0);
     }
+    if (isnan(x0) or isinf(x0)) 
+        throw std::logic_error("gradient descent method diverges");
     return x0;
 }
 

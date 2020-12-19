@@ -6,25 +6,30 @@
 
 
 CellularAutomaton::CellularAutomaton(int sqrt_size) : 
-    notStationary(true), 
-    sqrt_size(sqrt_size) 
+                            isStationary(true), 
+                            sqrt_size(sqrt_size) 
 {}
 
 
 IndividualType 
 CellularAutomaton::getResult(const IndividualType& individual, 
-                             const int& num_it) const {
+                             const int& num_it) {
     IndividualType newIndividual = individual;
     for (int i = 0; i < num_it; ++i) {
+        isStationary = true;
         oneStep(newIndividual);
         print_individual(newIndividual, sqrt_size);
         std::cout << std::endl;
+        if (isStationary) { return newIndividual; }
     }
+    isStationary = true;
+    IndividualType checkState = newIndividual;
+    oneStep(checkState);
     return newIndividual;
 }
 
 
-void CellularAutomaton::oneStep(IndividualType& individual) const {
+void CellularAutomaton::oneStep(IndividualType& individual) {
     int size = individual.size();
     std::vector<int> counts(size, 0);
 
@@ -37,9 +42,11 @@ void CellularAutomaton::oneStep(IndividualType& individual) const {
     for(int i = 0; i < size; ++i) {
         if (not individual[i] and counts[i] == 3) {
             individual[i] = true;
+            isStationary = false;
         }
         else if (individual[i] and (counts[i] < 2 or counts[i] > 3)) {
             individual[i] = false;
+            isStationary = false;
         }
     }
 }
@@ -63,17 +70,22 @@ void CellularAutomaton::setCount(const IndividualType& individual,
 }
 
 
-bool CellularAutomaton::isNotStationary() {
-    return notStationary;
+bool CellularAutomaton::getIsStationary() const {
+    return isStationary;
 }
 
 
 
-SurvivalFunc::SurvivalFunc(int sqrt_size): automaton(sqrt_size) {}
+SurvivalFunc::SurvivalFunc(const int& sqrt_size, const int& num_it): 
+                    automaton(sqrt_size), 
+                    isStationary(true),
+                    num_it(num_it)
+{}
 
-int SurvivalFunc::getValue(const IndividualType& individual) const {
-    IndividualType result = automaton.getResult(individual, 100);
-    // if (automaton.isNotStationary) {}
+
+int SurvivalFunc::getValue(const IndividualType& individual) {
+    IndividualType result = automaton.getResult(individual, num_it);
+    isStationary = automaton.getIsStationary();
     return countAlive(result);
 }
 
@@ -81,8 +93,11 @@ int SurvivalFunc::getValue(const IndividualType& individual) const {
 int SurvivalFunc::countAlive(const IndividualType& individual) const {
     int size = individual.size();
     int count = 0;
-    for (int i = 0; i < size; ++i) {
-        if (individual[i]) ++count;
-    }
+    for (int i = 0; i < size; ++i) { if (individual[i]) ++count; }
     return count;
+}
+
+
+bool SurvivalFunc::checkState() const {
+    return isStationary;
 }

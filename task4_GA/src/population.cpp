@@ -7,12 +7,13 @@
 
 
 void print_individual(const IndividualType& individual, const int& size) {
-    auto it = individual.begin();
+    // auto it = individual.begin();
     for (int i = 0; i < size; ++i) {
-        std::copy(it, it + size, 
-                  std::ostream_iterator<bool>(std::cout, " "));
+        for (int j = 0; j < size; ++j) {
+            char sym = individual[i * size + j] ? 'X' : '-';
+            std::cout << sym;
+        }
         std::cout << std::endl;
-        it += size;
     }
 }
 

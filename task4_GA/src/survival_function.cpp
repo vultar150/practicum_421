@@ -18,13 +18,13 @@ CellularAutomaton::getResult(const IndividualType& individual,
     for (int i = 0; i < num_it; ++i) {
         isStationary = true;
         oneStep(newIndividual);
-        print_individual(newIndividual, sqrt_size);
-        std::cout << std::endl;
+        // printIndividual(newIndividual, sqrt_size);
+        // std::cout << std::endl;
         if (isStationary) { return newIndividual; }
     }
     isStationary = true;
-    IndividualType checkState = newIndividual;
-    oneStep(checkState);
+    IndividualType checkRequirement = newIndividual;
+    oneStep(checkRequirement);
     return newIndividual;
 }
 
@@ -70,27 +70,27 @@ void CellularAutomaton::setCount(const IndividualType& individual,
 }
 
 
-bool CellularAutomaton::getIsStationary() const {
+bool CellularAutomaton::checkRequirement() const {
     return isStationary;
 }
 
 
 
-SurvivalFunc::SurvivalFunc(const int& sqrt_size, const int& num_it): 
-                    automaton(sqrt_size), 
-                    isStationary(true),
-                    num_it(num_it)
+Fitness::Fitness(const int& sqrt_size, const int& num_it): 
+            automaton(sqrt_size), 
+            isStationary(true),
+            num_it(num_it)
 {}
 
 
-int SurvivalFunc::getValue(const IndividualType& individual) {
+int Fitness::fitness(const IndividualType& individual) {
     IndividualType result = automaton.getResult(individual, num_it);
-    isStationary = automaton.getIsStationary();
+    isStationary = automaton.checkRequirement();
     return countAlive(result);
 }
 
 
-int SurvivalFunc::countAlive(const IndividualType& individual) const {
+int Fitness::countAlive(const IndividualType& individual) const {
     int size = individual.size();
     int count = 0;
     for (int i = 0; i < size; ++i) { if (individual[i]) ++count; }
@@ -98,6 +98,6 @@ int SurvivalFunc::countAlive(const IndividualType& individual) const {
 }
 
 
-bool SurvivalFunc::checkState() const {
+bool Fitness::checkRequirement() const {
     return isStationary;
 }

@@ -5,11 +5,11 @@
 // using IndividualType = std::vector<bool>;
 
 
-class ISurvivalFunc {
+class IFitness {
 public:
-    virtual int getValue(const IndividualType& individual) = 0;
-    virtual bool checkState() const = 0;
-    virtual ~ISurvivalFunc() = default;
+    virtual int fitness(const IndividualType& individual) = 0;
+    virtual bool checkRequirement() const = 0;
+    virtual ~IFitness() = default;
 };
 
 
@@ -23,7 +23,7 @@ public:
 
     void setCount(const IndividualType& individual, int x, int y, int& count) const;
 
-    bool getIsStationary() const;
+    bool checkRequirement() const;
 
 private:
     bool isStationary;
@@ -31,13 +31,13 @@ private:
 };
 
 
-class SurvivalFunc : public ISurvivalFunc {
+class Fitness : public IFitness {
 public:
-    SurvivalFunc(const int& sqrt_size=50, const int& num_it=100);
+    Fitness(const int& sqrt_size=50, const int& num_it=100);
 
-    int getValue(const IndividualType& individual) override;
+    int fitness(const IndividualType& individual) override;
 
-    bool checkState() const override;
+    bool checkRequirement() const override;
 
     int countAlive(const IndividualType& individual) const;
 

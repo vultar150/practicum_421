@@ -310,10 +310,6 @@ TEST(MyTest, GradientDescentTesting) {
     ASSERT_NEAR((*f)(getRoot(*f, 1000, 10.)), 0., ABS_ERROR);
 
 
-    auto fpolynomial2 = factory.createFunction("polynomial", {1, 0, 3});
-    auto mul2 = Const(2.) + Exp() * Ident() * (*fpolynomial2);
-    auto g = mul2 - Exp();
-
     // second equation
     ASSERT_EQ(g.toString(), "2 + e^x * x * (1 + 3*x^2) - e^x");
     ASSERT_NEAR(g(getRoot(g, 10000, -10)), 0., ABS_ERROR);
@@ -329,8 +325,6 @@ TEST(MyTest, GradientDescentTesting) {
     ASSERT_EQ(f3.toString(), "x + 1");
     ASSERT_NEAR(f3(getRoot(f3, 1000, -10)), 0., ABS_ERROR);
 
-    auto f4 = Const(1.) + Power(2) + Power(3) - Const(1.);
-    ASSERT_NEAR(f4(getRoot(f4, 1000, 10.)), 0., ABS_ERROR);
     
 
 }

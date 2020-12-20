@@ -15,15 +15,16 @@ public:
 
 class CellularAutomaton {
 public:
-    CellularAutomaton(int sqrt_size=50);
-
-    IndividualType getResult(const IndividualType& individual, const int& num_it);
+    CellularAutomaton();
 
     void oneStep(IndividualType& individual);
 
-    void setCount(const IndividualType& individual, int x, int y, int& count) const;
+    void setCount(const IndividualType& individual,
+                  int x, int y, int& count) const;
 
-    bool checkRequirement() const;
+    void setSize(const int& size);
+
+    bool checkStationary() const;
 
 private:
     bool isStationary;
@@ -33,7 +34,7 @@ private:
 
 class Fitness : public IFitness {
 public:
-    Fitness(const int& sqrt_size=50, const int& num_it=100);
+    Fitness(const int& num_it=100);
 
     int fitness(const IndividualType& individual) override;
 

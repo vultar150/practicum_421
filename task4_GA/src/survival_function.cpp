@@ -1,37 +1,18 @@
 #include <iostream>
 #include <vector>
+#include <cmath>
 
 #include "population.h"
 #include "survival_function.h"
 
 
-CellularAutomaton::CellularAutomaton(int sqrt_size) : 
-                            isStationary(true), 
-                            sqrt_size(sqrt_size) 
-{}
-
-
-IndividualType 
-CellularAutomaton::getResult(const IndividualType& individual, 
-                             const int& num_it) {
-    IndividualType newIndividual = individual;
-    for (int i = 0; i < num_it; ++i) {
-        isStationary = true;
-        oneStep(newIndividual);
-        // printIndividual(newIndividual, sqrt_size);
-        // std::cout << std::endl;
-        if (isStationary) { return newIndividual; }
-    }
-    isStationary = true;
-    IndividualType checkRequirement = newIndividual;
-    oneStep(checkRequirement);
-    return newIndividual;
-}
+CellularAutomaton::CellularAutomaton() : isStationary(true) {}
 
 
 void CellularAutomaton::oneStep(IndividualType& individual) {
     int size = individual.size();
     std::vector<int> counts(size, 0);
+    isStationary = true;
 
     for(int i = 0; i < sqrt_size; ++i) {
         for (int j = 0; j < sqrt_size; ++j) {
@@ -70,22 +51,33 @@ void CellularAutomaton::setCount(const IndividualType& individual,
 }
 
 
-bool CellularAutomaton::checkRequirement() const {
-    return isStationary;
-}
+void CellularAutomaton::setSize(const int& size) { sqrt_size = size; }
+
+
+bool CellularAutomaton::checkStationary() const { return isStationary; }
 
 
 
-Fitness::Fitness(const int& sqrt_size, const int& num_it): 
-            automaton(sqrt_size), 
-            isStationary(true),
-            num_it(num_it)
-{}
+Fitness::Fitness(const int& num_it): 
+            automaton(), isStationary(true), num_it(num_it) {}
 
 
 int Fitness::fitness(const IndividualType& individual) {
-    IndividualType result = automaton.getResult(individual, num_it);
-    isStationary = automaton.checkRequirement();
+    IndividualType result = individual;
+    int sqrt_size = std::sqrt(individual.size());
+    automaton.setSize(sqrt_size);
+    for (int i = 0; i < num_it; ++i) {
+        isStationary = true;
+        automaton.oneStep(result);
+        // printIndividual(result, sqrt_size);
+        // std::cout << std::endl;
+        isStationary = automaton.checkStationary();
+        if (isStationary) { return countAlive(result); }
+    }
+    isStationary = true;
+    IndividualType checkRequirement = result;
+    automaton.oneStep(checkRequirement);
+    isStationary = automaton.checkStationary();
     return countAlive(result);
 }
 
@@ -98,6 +90,7 @@ int Fitness::countAlive(const IndividualType& individual) const {
 }
 
 
-bool Fitness::checkRequirement() const {
-    return isStationary;
-}
+bool Fitness::checkRequirement() const { return isStationary; }
+
+
+

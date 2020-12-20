@@ -8,11 +8,6 @@ TournamentSelection::TournamentSelection(int tournamentSize) :
 {}
 
 
-int TournamentSelection::getRandomIndividual(int size) {
-    return arc4random_uniform(size);
-}
-
-
 IPopulation* TournamentSelection::getParents(IPopulation* population, 
                                              IFitness *func) {
     int size = population->size();
@@ -25,7 +20,7 @@ IPopulation* TournamentSelection::getParents(IPopulation* population,
     for (int i = 0; i < size; ++i) {
         int record = -1;
         for (int k = 0; k < tournamentSize; ++k) {
-            current = getRandomIndividual(size);
+            current = arc4random_uniform(size);
             if (record == -1 or (targetValues[current] > targetValues[record]))
                 record = current;
         }

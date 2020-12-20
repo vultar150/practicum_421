@@ -49,6 +49,8 @@ void Population::init() {
 
 
 void Population::print() const {
+    std::cout << __PRETTY_FUNCTION__ << std::endl;
+    std::cout << "SIZE = " << population.size() << std::endl;
     for (const auto& indiv : population) {
         printIndividual(indiv, sqrt_genom_size);
         std::cout << std::endl;

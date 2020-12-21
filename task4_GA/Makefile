@@ -1,7 +1,7 @@
-CC := clang++  -std=c++2a
+CC := clang++ -O3 -std=c++2a -Xpreprocessor -fopenmp -lomp
 CFLAGS := -c -Wall
 DIR := src/
-ALL_OBJECT_LIST := main.o population.o survival_function.o selection.o crossover.o mutation.o
+ALL_OBJECT_LIST := main.o population.o survival_function.o selection.o crossover.o mutation.o functions.o
 OBJECTS := $(addprefix $(DIR), $(ALL_OBJECT_LIST))
 GA := genetic_algorithm
 

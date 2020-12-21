@@ -1,14 +1,22 @@
 #ifndef SURVIVAL_FUNCTION_H
 #define SURVIVAL_FUNCTION_H
 
+// #include "population.h"
+// #include <array>
 
-// using IndividualType = std::vector<bool>;
 
+
+// using IndividualType = std::array<bool, 2500>;
+using IndividualType = std::vector<bool>;
+
+
+void printIndividual(const IndividualType& individual, const int& size);
 
 class IFitness {
 public:
     virtual int fitness(const IndividualType& individual) = 0;
     virtual bool checkRequirement() const = 0;
+    virtual double getFine() const = 0;
     virtual ~IFitness() = default;
 };
 
@@ -23,6 +31,8 @@ public:
                   int x, int y, int& count) const;
 
     void setSize(const int& size);
+
+    void outputByStep(const IndividualType& individual, const int& num_it);
 
     bool checkStationary() const;
 
@@ -42,10 +52,13 @@ public:
 
     int countAlive(const IndividualType& individual) const;
 
+    double getFine() const override;
+
 private:
     CellularAutomaton automaton;
     bool isStationary;
     int  num_it;
+    double fine;
 };
 
 

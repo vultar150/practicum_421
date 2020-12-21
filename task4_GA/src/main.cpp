@@ -1,4 +1,6 @@
 #include <iostream>
+#include <cmath>
+#include <omp.h>
 
 #include "const.h"
 #include "population.h"
@@ -6,14 +8,53 @@
 #include "selection.h"
 #include "crossover.h"
 #include "mutation.h"
+#include "main_cycle.h"
 
 
 int main(int argc, char *argv[]) {
-    IPopulation *population = new Population(N_POP, SQRT_GENOM_SIZE);
-    population->print();
+    omp_set_num_threads(NUM_THREADS);
 
+    IMutation*   mutation   = new Mutation(P_MUT);
+    ISelection*  selection  = new TournamentSelection(TOURNAMENT_SIZE);
+    ICrossover*  crossover  = new SinglePointCrossover();
+    IFitness* F = new Fitness(NUM_IT_FIT);
+
+    IPopulation* population = new Population(NUM_POP, GENOM_SIZE, F, MAX_NUM_IT_FOR_REQ);
+    std::cout << "/////////" << std::endl;
+
+    // population->updateFitnessValues(F);
+    
+
+    GA ga(PC, NUM_IT_WITHOUT_CHANGE, MAX_NUM_IT_FOR_REQ);
+
+    IndividualType* result = ga.getResult(population, mutation, selection, 
+                                          crossover, F);
+
+    // delete population;
+    delete mutation;
+    delete selection;
+    delete crossover;
+    delete F;
+
+    CellularAutomaton automaton;
+    // printIndividual(*result, std::sqrt(GENOM_SIZE));
+    // std::cout << std::endl;
+    std::cout << "AUTOMATON: " << std::endl;
+    automaton.outputByStep(*result, NUM_IT_FIT);
     std::cout << std::endl;
     std::cout << "///////" << std::endl;
+    std::cout << ga.getFitnessRecord() << std::endl;
+
+    delete result;
+
+
+
+
+
+
+
+
+
     // ICrossover *cross = new SinglePointCrossover();
     // IndividualType *child1 = new IndividualType(population->getIndividual(0));
     // IndividualType *child2 = new IndividualType(population->getIndividual(1));
@@ -76,9 +117,9 @@ int main(int argc, char *argv[]) {
     // std::cout << std::endl;
     // std::cout << "NEXT//////////////////" << std::endl;
     // int size = 10;
-    int num_it = 2;
+    // int num_it = 2;
 
-    IFitness *F = new Fitness(num_it);
+    // IFitness *F = new Fitness(num_it);
     // IndividualType individual2(size * size, false);
     // individual2[2 * size + 3] = true;
     // individual2[3 * size + 4] = true;
@@ -96,23 +137,23 @@ int main(int argc, char *argv[]) {
     // std::cout << "IS STATIONARY? " << state << std::endl;
     // std::cout << "NEXT//////////////////" << std::endl;
 //////////////
+    // population->updateFitnessValues(F);
+    // ISelection *selection = new TournamentSelection();
+    // IPopulation *parents = selection->getParents(population, F);
 
-    ISelection *selection = new TournamentSelection();
-    IPopulation *parents = selection->getParents(population, F);
-
-    delete population;
+    // delete population;
 
     // parents->print();
-
-    std::copy(parents->getIndividual(0).begin(), parents->getIndividual(0).end(), 
-              std::ostream_iterator<bool>(std::cout, " "));
-    std::cout << std::endl;
-    std::cout << "MUTATION CHECK/////" << std::endl;
-    IMutation* mutation = new Mutation();
-    mutation->mutate(&parents->getIndividual(0));
-    std::copy(parents->getIndividual(0).begin(), parents->getIndividual(0).end(), 
-              std::ostream_iterator<bool>(std::cout, " "));
-    std::cout << std::endl;
+    // std::cout << std::endl;
+    // std::cout << "MUTATION CHECK/////" << std::endl;
+    // std::copy(parents->getIndividual(0).begin(), parents->getIndividual(0).end(), 
+    //           std::ostream_iterator<bool>(std::cout, " "));
+    // std::cout << std::endl;
+    // IMutation* mutation = new Mutation();
+    // mutation->mutate(&parents->getIndividual(0));
+    // std::copy(parents->getIndividual(0).begin(), parents->getIndividual(0).end(), 
+    //           std::ostream_iterator<bool>(std::cout, " "));
+    // std::cout << std::endl;
 
 
 

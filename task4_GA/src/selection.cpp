@@ -8,23 +8,22 @@ TournamentSelection::TournamentSelection(int tournamentSize) :
 {}
 
 
-IPopulation* TournamentSelection::getParents(IPopulation* population, 
-                                             IFitness *func) {
+IPopulation* TournamentSelection::getParents(IPopulation* population,
+                                             IFitness *func, 
+                                             int ids[]) {
     int size = population->size();
     IPopulation* parents = population->weakCopy();
-    std::vector<int> targetValues(size);
-    for (int i = 0; i < size; ++i) {
-        targetValues[i] = func->fitness(population->getIndividual(i));
-    }
     int current = 0;
     for (int i = 0; i < size; ++i) {
         int record = -1;
         for (int k = 0; k < tournamentSize; ++k) {
             current = arc4random_uniform(size);
-            if (record == -1 or (targetValues[current] > targetValues[record]))
+            int targetCurr = population->getFitness()[current];
+            if (record == -1 or (targetCurr > population->getFitness()[record])) // here
                 record = current;
         }
         parents->addIndividual(population->getIndividual(record));
+        ids[i] = record;
     }
     return parents;
 }

@@ -75,6 +75,8 @@ public:
                     newGeneration->getFitness()[i].state = F->checkRequirement();
                 }
                 while (F->checkRequirement() and numItForRequirements++ < maxNumItForRequirements);
+                if (newGeneration->getFitness()[i].state) 
+                    newGeneration->getFitness()[i].value *= F->getFine(); 
             }
             // std::cout << "AFTER MUTATION " << std::endl;
             population = newGeneration;

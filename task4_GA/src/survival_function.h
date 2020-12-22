@@ -36,6 +36,8 @@ public:
 
     bool checkStationary() const;
 
+    IndividualType* getLast(const IndividualType& individual, const int& num_it);
+
 private:
     bool isStationary;
     int sqrt_size;

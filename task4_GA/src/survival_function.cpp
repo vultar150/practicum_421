@@ -93,6 +93,18 @@ void CellularAutomaton::outputByStep(const IndividualType& individual,
 bool CellularAutomaton::checkStationary() const { return isStationary; }
 
 
+IndividualType* 
+CellularAutomaton::getLast(const IndividualType& individual, const int& num_it) {
+    IndividualType* result = new IndividualType(individual);
+    int sqrt_size = std::sqrt(individual.size());
+    setSize(sqrt_size);
+    for (int i = 0; i < num_it; ++i) {
+        oneStep(*result);
+    }
+    return result;
+}
+
+
 Fitness::Fitness(const int& num_it): 
             automaton(), isStationary(true), num_it(num_it), fine(0.8) {}
 

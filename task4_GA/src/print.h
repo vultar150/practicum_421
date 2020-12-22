@@ -6,7 +6,6 @@ const int SCREEN_HEIGHT = 670;
 const int BORDER_LINE = 10;
 
 
-
 class Picture {
 public:
     Picture(const int& field_width=50, const int& field_height=50);

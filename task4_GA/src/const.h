@@ -10,6 +10,6 @@ const double& PC = 0.8;
 const int& NUM_IT_WITHOUT_CHANGE = 20;
 const int& MAX_NUM_IT_FOR_REQ = 5;
 const int& TOURNAMENT_SIZE = 2;
-const int& NUM_PER_SEC = 2;
+const int& NUM_PER_SEC = 20;
 
 #endif // CONST_H

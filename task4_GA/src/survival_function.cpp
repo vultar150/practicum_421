@@ -4,12 +4,12 @@
 #include <cmath>
 #include <cstdio>
 #include <ctime>
+#include <cstdio>
+#include <SDL2/SDL.h>
 
 
-// #include "const.h"
 #include "survival_function.h"
-
-
+#include "functions.h"
 
 
 CellularAutomaton::CellularAutomaton() : isStationary(true) {}
@@ -23,11 +23,12 @@ void CellularAutomaton::oneStep(IndividualType& individual) {
     #pragma omp parallel shared(counts)
     {
         #pragma omp for
+        for (int i = 0; i < size; ++i) counts[i] = 0;
+
+        #pragma omp for
         for(int i = 0; i < sqrt_size; ++i) {
             for (int j = 0; j < sqrt_size; ++j) {
-                int& count = counts[i * sqrt_size + j];
-                count = 0;
-                setCount(individual, i, j, count);
+                setCount(individual, i, j, counts[i * sqrt_size + j]);
             }
         }
     }
@@ -143,4 +144,6 @@ bool Fitness::checkRequirement() const { return isStationary; }
 
 
 double Fitness::getFine() const { return fine; }
+
+
 

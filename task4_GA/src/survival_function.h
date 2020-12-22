@@ -1,12 +1,7 @@
 #ifndef SURVIVAL_FUNCTION_H
 #define SURVIVAL_FUNCTION_H
 
-// #include "population.h"
-// #include <array>
 
-
-
-// using IndividualType = std::array<bool, 2500>;
 using IndividualType = std::vector<bool>;
 
 

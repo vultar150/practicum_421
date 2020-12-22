@@ -10,18 +10,12 @@ const int BORDER_LINE = 10;
 class Picture {
 public:
     Picture(const int& field_width=50, const int& field_height=50);
-
-    void show(IndividualType& individual, 
-              CellularAutomaton& automaton, 
+    void show(const IndividualType& individual, 
               const int& num_it, 
               const int& num_per_sec);
-
-    void drawField(const IndividualType& individual);
-
+    void drawField(const IndividualType& result);
     void drawRect(int x, int y);
-
     void drawGrid();
-
     ~Picture();
 
 private:
@@ -32,7 +26,6 @@ private:
 
     int field_width;
     int field_height;
-
 };
 
 

@@ -7,6 +7,7 @@ using IndividualType = std::vector<bool>;
 
 void printIndividual(const IndividualType& individual, const int& size);
 
+
 class IFitness {
 public:
     virtual int fitness(const IndividualType& individual) = 0;
@@ -57,6 +58,7 @@ private:
     int  num_it;
     double fine;
 };
+
 
 
 #endif // SURVIVAL_FUNCTION_H

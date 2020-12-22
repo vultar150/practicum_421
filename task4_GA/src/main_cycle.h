@@ -102,7 +102,6 @@ private:
     int maxNumItWithoutChanges;
     int maxNumItForRequirements;
     int numItWithoutChanges;
-    // int numItForRequirements;
 };
 
 #endif // MAIN_CYCLE_H

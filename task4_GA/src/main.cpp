@@ -65,7 +65,7 @@ void outputResult(IndividualType* result, IndividualType* afterSteps,
 }
 
 
-int main(int argc, char *argv[]) {
+extern "C" int main(int argc, char *argv[]) {
     omp_set_num_threads(NUM_THREADS);
     int i = 0;
     int num_series = 0;
@@ -95,16 +95,19 @@ int main(int argc, char *argv[]) {
     delete crossover;
     delete F;
 
-    CellularAutomaton automaton;
-    // std::cout << std::endl;
-    // automaton.outputByStep(*result, NUM_IT_FIT);
-    IndividualType* afterSteps = automaton.getLast(*result, NUM_IT_FIT);
+    int size = std::sqrt(result->size());
+    Picture* display = new Picture(size, size);
+    display->show(*result, NUM_IT_FIT, NUM_PER_SEC);
+    delete display;
 
-    outputResult(result, afterSteps, ga.getFitnessRecord(), 
-                 i, num_series, timeDiff);
+    // outputResult(result, afterSteps, ga.getFitnessRecord(),
+    //              i, num_series, timeDiff);
 
     delete result;
-    delete afterSteps;
+    // delete afterSteps;
+    std::cout << "time = " << std::chrono::duration <double, std::milli> (timeDiff).count()
+              << " ms" << std::endl;
+    std::cout << "Record = " << ga.getFitnessRecord() << std::endl;
 
 
     return 0;

@@ -6,19 +6,12 @@
 
 #include "survival_function.h"
 #include "print.h"
-#include "functions.h"
 
-
-void update(IndividualType& individual) {
-   for (int i = 0; i < 2500; ++i) {
-        individual[i] = getRandomBool();
-    }
-}
 
 
 Picture::Picture(const int& field_width, const int& field_height) :
             field_width(field_width),
-            field_height(field_height) 
+            field_height(field_height)
 {
     SDL_Init( SDL_INIT_EVERYTHING );
     window = SDL_CreateWindow("Примитивы", 
@@ -41,63 +34,92 @@ Picture::Picture(const int& field_width, const int& field_height) :
 }
 
 
-void Picture::show(IndividualType& individual, 
-                   CellularAutomaton& automaton, 
+void Picture::show(const IndividualType& individual,  
                    const int& num_it, 
                    const int& num_per_sec) {
     SDL_Event windowEvent;
     SDL_PollEvent(&windowEvent);
 
-    // IndividualType result = individual;
-    // const int mill = 500;
-    // if ( SDL_PollEvent( &windowEvent ) ) {
-    //     if ( SDL_QUIT == windowEvent.type ) {
-    //     }
-    // }
-    // SDL_SetRenderDrawColor(ren, 0x00, 0x00, 0x00, 0x00); // background
-    // SDL_RenderClear(ren);
-    // SDL_SetRenderDrawColor(ren, 0x55, 0x6B, 0x2F, 0xFF); // grid
 
-    // SDL_SetRenderDrawColor(ren, 0x00, 0x00, 0x00, 0x00); // background
-    // SDL_RenderClear(ren);
-    // SDL_SetRenderDrawColor(ren, 0x55, 0x6B, 0x2F, 0xFF); // grid
-    // drawGrid();
-    // SDL_SetRenderDrawColor(ren, 0x00, 0xFF, 0x7F, 0xFF); // individual
-    // drawField(result);
-    // SDL_RenderPresent(ren);
-    // SDL_Delay(500);
-    IndividualType test(individual.size());
-    update(test);
+    bool isquit = false;
+    SDL_Event event;
 
+    double delay = 1000 / num_per_sec;
 
-    for (int i = 0; i <= num_it; ++i) {
-        SDL_SetRenderDrawColor(ren, 0x00, 0x00, 0x00, 0x00); // background
-        SDL_RenderClear(ren);
-        SDL_SetRenderDrawColor(ren, 0x55, 0x6B, 0x2F, 0xFF); // grid
-        drawGrid();
-        SDL_SetRenderDrawColor(ren, 0x00, 0xFF, 0x7F, 0xFF); // individual
-        drawField(test);
-        SDL_RenderPresent(ren);
-        // automaton.oneStep(individual);
-        SDL_Delay(500);
-        update(test);
+    int size = std::sqrt(individual.size());
+    IndividualType result = individual;
+    printIndividual(result, size);
+    std::cout << std::endl;
+    int i = 0;
+
+    while (!isquit) {
+        if (SDL_PollEvent( & event)) {
+            if (event.type == SDL_QUIT) {
+                isquit = true;
+            }
+        }
+        if (i <= num_it) {
+            SDL_SetRenderDrawColor(ren, 0x00, 0x00, 0x00, 0x00); // background
+            SDL_RenderClear(ren);
+            SDL_SetRenderDrawColor(ren, 0x55, 0x6B, 0x2F, 0xFF); // grid
+            drawGrid();
+            SDL_SetRenderDrawColor(ren, 0x00, 0xFF, 0x7F, 0xFF); // individual
+
+            printIndividual(result, size);
+            std::cout << std::endl;
+
+            drawField(result);
+
+            SDL_RenderPresent(ren);
+            int counts[size * size];
+            for (int i = 0; i < size * size; ++i) counts[i] = 0;
+
+            for(int i = 0; i < size; ++i) {
+                for (int j = 0; j < size; ++j) {
+                    int dx_up = i > 0 ? -1 : 0;
+                    int dx_down = i < size - 1 ? 1 : 0;
+
+                    int dy_left = j > 0 ? -1 : 0;
+                    int dy_right = j < size - 1 ? 1 : 0;
+
+                    for (int k = i + dx_up; k <= i + dx_down; ++k) {
+                        for (int m = j + dy_left; m <= j + dy_right; ++m) {
+                            if (result[k * size + m]) {
+                                ++counts[i * size + j];
+                            }
+                        }
+                    }
+                    if (result[i * size + j]) --counts[i * size + j];
+                }
+            }
+
+            for(int i = 0; i < size * size; ++i) {
+                if (not result[i] and counts[i] == 3) {
+                    result[i] = true;
+                }
+                else if (result[i] and (counts[i] < 2 or counts[i] > 3)) {
+                    result[i] = false;
+                }
+            }
+            ++i;
+            SDL_Delay(delay);
+        }
     }
-    SDL_Delay(5000);
 }
 
 
-void Picture::drawField(const IndividualType& individual) {
+void Picture::drawField(const IndividualType& result) {
     for (int i = 0; i < field_width; ++i) {
         for (int j = 0; j < field_height; ++j) {
-            if (individual[i * field_width + j]) drawRect(i, j);
+            if (result[i * field_width + j]) drawRect(i, j);
         }
     }
 }
 
 
 void Picture::drawRect(int x, int y) {
-    SDL_Rect rect1 = {BORDER_LINE + x * cellSizeX, 
-                      BORDER_LINE + y * cellSizeY, 
+    SDL_Rect rect1 = {BORDER_LINE + y * cellSizeX, 
+                      BORDER_LINE + x * cellSizeY, 
                       cellSizeX, cellSizeY};
     SDL_RenderFillRect(ren, &rect1);
 }
@@ -107,12 +129,14 @@ void Picture::drawRect(int x, int y) {
 void Picture::drawGrid() {
     for (int i = 0; i <= field_width; ++i) {
         SDL_RenderDrawLine(ren, BORDER_LINE + i * cellSizeX, BORDER_LINE, 
-                                BORDER_LINE + i * cellSizeX, SCREEN_HEIGHT - BORDER_LINE);
+                                BORDER_LINE + i * cellSizeX, 
+                                SCREEN_HEIGHT - BORDER_LINE);
     }
 
     for (int i = 0; i <= field_height; ++i) {
         SDL_RenderDrawLine(ren, BORDER_LINE, BORDER_LINE + i * cellSizeY, 
-                                SCREEN_WIDTH - BORDER_LINE, BORDER_LINE + i * cellSizeY);
+                                SCREEN_WIDTH - BORDER_LINE, 
+                                BORDER_LINE + i * cellSizeY);
     }
 }
 

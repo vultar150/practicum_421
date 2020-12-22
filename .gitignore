@@ -1,5 +1,5 @@
 .DS_Store
-
+.~lock.results.csv#
 *.dSYM
 
 # Prerequisites

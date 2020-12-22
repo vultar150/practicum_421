@@ -14,4 +14,5 @@ done
 done
 output+="\n"
 echo -e $output >> results.csv
+rm record.txt time.txt
 

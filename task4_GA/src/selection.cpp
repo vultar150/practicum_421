@@ -19,7 +19,7 @@ IPopulation* TournamentSelection::getParents(IPopulation* population,
         for (int k = 0; k < tournamentSize; ++k) {
             current = arc4random_uniform(size);
             int targetCurr = population->getFitness()[current];
-            if (record == -1 or (targetCurr > population->getFitness()[record])) // here
+            if (record == -1 or (targetCurr > population->getFitness()[record])) // max or min
                 record = current;
         }
         parents->addIndividual(population->getIndividual(record));

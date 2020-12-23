@@ -14,7 +14,7 @@ Picture::Picture(const int& field_width, const int& field_height) :
             field_height(field_height)
 {
     SDL_Init( SDL_INIT_EVERYTHING );
-    window = SDL_CreateWindow("Примитивы", 
+    window = SDL_CreateWindow("GA", 
                               SDL_WINDOWPOS_UNDEFINED, 
                               SDL_WINDOWPOS_UNDEFINED, 
                               SCREEN_WIDTH, SCREEN_HEIGHT, 

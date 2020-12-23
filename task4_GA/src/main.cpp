@@ -100,13 +100,19 @@ extern "C" int main(int argc, char *argv[]) {
     display->show(*result, NUM_IT_FIT, NUM_PER_SEC);
     delete display;
 
-    // CellularAutomaton automaton;
-    // IndividualType* afterSteps = automaton.getLast(afterSteps, NUM_IT_FIT);
+    CellularAutomaton automaton;
+    IndividualType* afterSteps = automaton.getLast(*result, NUM_IT_FIT);
+
+    // std::cout << "result: " << std::endl;
+    // printIndividual(*result, size);
+
+    // std::cout << "after steps: " << std::endl;
+    // printIndividual(*afterSteps, size);
     // outputResult(result, afterSteps, ga.getFitnessRecord(),
     //              i, num_series, timeDiff);
 
     delete result;
-    // delete afterSteps;
+    delete afterSteps;
     std::cout << "time = " << std::chrono::duration <double, std::milli> (timeDiff).count()
               << " ms" << std::endl;
     std::cout << "Record = " << ga.getFitnessRecord() << std::endl;

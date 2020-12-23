@@ -100,6 +100,8 @@ extern "C" int main(int argc, char *argv[]) {
     display->show(*result, NUM_IT_FIT, NUM_PER_SEC);
     delete display;
 
+    // CellularAutomaton automaton;
+    // IndividualType* afterSteps = automaton.getLast(afterSteps, NUM_IT_FIT);
     // outputResult(result, afterSteps, ga.getFitnessRecord(),
     //              i, num_series, timeDiff);
 

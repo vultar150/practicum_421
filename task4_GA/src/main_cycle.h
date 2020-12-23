@@ -9,7 +9,7 @@ class GA {
 public:
 
     GA(const double& Pc, const int& numIt, const int& maxItReq) : 
-       record(new IndividualType), fitnessRecord(-1), Pc(Pc), // here 
+       record(new IndividualType), fitnessRecord(-1), Pc(Pc), // max or min
        maxNumItWithoutChanges(numIt), maxNumItForRequirements(maxItReq), 
        numItWithoutChanges(0) {}
 
@@ -75,12 +75,12 @@ public:
         for (int i = 0; i < size; ++i) {
             int curr_fit = population->getFitness()[i].value;
             bool stationary = population->getFitness()[i].state;
-            if (curr_fit > max and not stationary) { // here
+            if (curr_fit > max and not stationary) { // max or min
                 max = curr_fit;
                 it_max = i;
             }
         }
-        if (max > fitnessRecord) { // here
+        if (max > fitnessRecord) { // max or min
             fitnessRecord = max;
             delete record;
             record = new IndividualType(population->getIndividual(it_max));
